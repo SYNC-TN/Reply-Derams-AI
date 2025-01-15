@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     console.log("Making request to Hugging Face for prompt:", prompt);
 
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/pablobonilla/flux-realistic-lora",
+      "https://api-inference.huggingface.co/models/friedrichor/stable-diffusion-2-1-realistic",
       payload,
       {
         headers: {
