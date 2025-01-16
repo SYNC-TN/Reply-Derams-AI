@@ -1,15 +1,17 @@
-// app/api/dreams/[id]/route.ts
+// app/api/dreams/[url]/route.ts
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { url: string } }
 ) {
   try {
     await connectDB();
-    const dream = await DreamStory.findById(params.id);
+
+    // The URL stored in the database is just the UUID
+    const dream = await DreamStory.findOne({ url: params.url });
 
     if (!dream) {
       return NextResponse.json({ error: "Dream not found" }, { status: 404 });
@@ -17,6 +19,7 @@ export async function GET(
 
     return NextResponse.json(dream);
   } catch (error) {
+    console.error("Error fetching dream:", error);
     return NextResponse.json(
       { error: "Failed to fetch dream" },
       { status: 500 }

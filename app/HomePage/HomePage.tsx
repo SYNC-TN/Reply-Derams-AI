@@ -1,10 +1,9 @@
 "use client";
-import React from "react";
-import { Moon, Sparkles, BookOpen, Camera, Share } from "lucide-react";
+import React, { useState } from "react";
+import { Moon, Sparkles, BookOpen, Camera, Share, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import GenreShowcase from "./GenreShowcase";
-import { Menu } from "lucide-react";
 import Link from "next/link";
 import {
   Sheet,
@@ -14,6 +13,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { SessionProvider, useSession } from "next-auth/react";
+import AuthDialog from "../AuthPage/AuthDialog";
 
 const StarField = () => {
   const stars = Array.from({ length: 50 }, () => ({
@@ -36,53 +37,110 @@ const StarField = () => {
   );
 };
 
-const HomePage = () => {
+// Separate component for authenticated content in nav
+const AuthenticatedContent = ({
+  onStartCreating,
+}: {
+  onStartCreating: () => void;
+}) => {
+  const { data: session } = useSession();
+
+  if (session?.user?.id) {
+    return (
+      <Link href="/dreams">
+        <Button className="bg-blue-500 hover:bg-blue-600">
+          Start Creating
+        </Button>
+      </Link>
+    );
+  }
+
   return (
-    <div className="relative">
-      <div className="min-h-screen bg-gradient-to-b from-[#0a192f] via-[#162a4a] to-[#0a192f] text-white">
-        <StarField />
+    <Button className="bg-blue-500 hover:bg-blue-600" onClick={onStartCreating}>
+      Start Creating
+    </Button>
+  );
+};
 
-        {/* Navigation */}
+// Separate component for authenticated content in hero section
+const HeroAuthContent = ({
+  onStartCreating,
+}: {
+  onStartCreating: () => void;
+}) => {
+  const { data: session } = useSession();
 
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a192f]/80 backdrop-blur-sm px-6 py-4">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="flex items-center space-x-3 logo w-auto h-12">
-              <img
-                src="/logo.png"
-                className="h-12 w-12 transition-transform transform scale-150 mt-2"
-                alt="ReplayDreams Logo"
-              />
-              <span className="text-3xl font-extrabold tracking-tight max-md:text-xl">
-                Replay<span className="text-sky-400">Dreams</span> AI
-              </span>
-            </div>
-            <div className="space-x-6 hidden md:flex">
-              <Button
-                variant="ghost"
-                className="text-blue-200 hover:text-white hover:bg-slate-400"
-              >
-                Gallery
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-blue-200 hover:text-white hover:bg-slate-400"
-              >
-                How It Works
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-blue-200 hover:text-white hover:bg-slate-400"
-              >
-                Pricing
-              </Button>
-              <Link href="/dreams">
-                <Button className="bg-blue-500 hover:bg-blue-600">
-                  Start Creating
+  if (session?.user?.id) {
+    return (
+      <Link href="/dreams">
+        <Button className="bg-blue-500 hover:bg-blue-600 text-lg px-8 py-6">
+          <Sparkles className="w-5 h-5 mr-2" />
+          Create Your Dream Story
+        </Button>
+      </Link>
+    );
+  }
+
+  return (
+    <Button
+      className="bg-blue-500 hover:bg-blue-600 text-lg px-8 py-6"
+      onClick={onStartCreating}
+    >
+      <Sparkles className="w-5 h-5 mr-2" />
+      Create Your Dream Story
+    </Button>
+  );
+};
+
+// Main HomePage component
+const HomePage = () => {
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const handleStartCreating = () => {
+    setIsAuthOpen(true);
+  };
+
+  return (
+    <SessionProvider>
+      <div className="relative">
+        <div className="min-h-screen bg-gradient-to-b from-[#0a192f] via-[#162a4a] to-[#0a192f] text-white">
+          <StarField />
+
+          {/* Navigation */}
+          <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a192f]/80 backdrop-blur-sm px-6 py-4">
+            <div className="max-w-7xl mx-auto flex justify-between items-center">
+              <div className="flex items-center space-x-3 logo w-auto h-12">
+                <img
+                  src="/logo.png"
+                  className="h-12 w-12 transition-transform transform scale-150 mt-2"
+                  alt="ReplayDreams Logo"
+                />
+                <span className="text-3xl font-extrabold tracking-tight max-md:text-xl">
+                  Replay<span className="text-sky-400">Dreams</span> AI
+                </span>
+              </div>
+              <div className="space-x-6 hidden md:flex">
+                <Button
+                  variant="ghost"
+                  className="text-blue-200 hover:text-white hover:bg-slate-400"
+                >
+                  Gallery
                 </Button>
-              </Link>
-            </div>
-            <div className="md:hidden ">
-              <div className="md:hidden ">
+                <Button
+                  variant="ghost"
+                  className="text-blue-200 hover:text-white hover:bg-slate-400"
+                >
+                  How It Works
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-blue-200 hover:text-white hover:bg-slate-400"
+                >
+                  Pricing
+                </Button>
+                <AuthenticatedContent onStartCreating={handleStartCreating} />
+              </div>
+              <div className="md:hidden">
                 <Sheet>
                   <SheetTrigger>
                     <Menu className="w-6 h-6 text-blue-200 hover:text-white transition-colors" />
@@ -136,12 +194,9 @@ const HomePage = () => {
                       </div>
 
                       <div className="pt-6 mt-6 border-t border-blue-500/20">
-                        <Link href="/dreams" className="block">
-                          <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                            <Sparkles className="w-5 h-5 mr-2" />
-                            Start Creating
-                          </Button>
-                        </Link>
+                        <AuthenticatedContent
+                          onStartCreating={handleStartCreating}
+                        />
                       </div>
                     </motion.div>
 
@@ -152,86 +207,83 @@ const HomePage = () => {
                 </Sheet>
               </div>
             </div>
-          </div>
-        </nav>
+          </nav>
 
-        {/* Hero Section */}
-        <main className="relative pt-32 pb-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center"
-            >
-              <h1 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300">
-                Transform Your Dreams Into Art
-              </h1>
-              <p className="text-xl text-blue-200 mb-12 max-w-2xl mx-auto">
-                Watch your dreams, memories, and stories come to life through
-                AI-generated visual narratives. Turn your imagination into
-                stunning artwork.
-              </p>
+          {/* Hero Section */}
+          <main className="relative pt-32 pb-20">
+            <div className="max-w-7xl mx-auto px-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-center"
+              >
+                <h1 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300">
+                  Transform Your Dreams Into Art
+                </h1>
+                <p className="text-xl text-blue-200 mb-12 max-w-2xl mx-auto">
+                  Watch your dreams, memories, and stories come to life through
+                  AI-generated visual narratives. Turn your imagination into
+                  stunning artwork.
+                </p>
 
-              <div className="flex justify-center space-x-6 mb-20 max-md:flex-col max-md:space-x-0 max-md:space-y-4">
-                <Link href="/dreams">
-                  <Button className="bg-blue-500 hover:bg-blue-600 text-lg px-8 py-6">
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Create Your Dream Story
+                <div className="flex justify-center space-x-6 mb-20 max-md:flex-col max-md:space-x-0 max-md:space-y-4">
+                  <HeroAuthContent onStartCreating={handleStartCreating} />
+                  <Button
+                    variant="outline"
+                    className="text-lg px-8 py-6 border-blue-300 text-blue-300 hover:bg-blue-900/30 bg-gray-900/95"
+                  >
+                    Explore Gallery
                   </Button>
-                </Link>
-                <Button
-                  variant="outline"
-                  className="text-lg px-8 py-6 border-blue-300 text-blue-300 hover:bg-blue-900/30 bg-gray-900/95"
-                >
-                  Explore Gallery
-                </Button>
-              </div>
-            </motion.div>
+                </div>
+              </motion.div>
 
-            {/* Feature Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
-            >
-              <div className="bg-blue-900/30 backdrop-blur-sm p-6 rounded-xl border border-blue-500/30">
-                <BookOpen className="w-12 h-12 text-blue-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Visual Stories</h3>
-                <p className="text-blue-200">
-                  Transform your dreams into stunning visual narratives with
-                  AI-powered art generation
-                </p>
-              </div>
-              <div className="bg-blue-900/30 backdrop-blur-sm p-6 rounded-xl border border-blue-500/30">
-                <Camera className="w-12 h-12 text-blue-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Memory Fusion</h3>
-                <p className="text-blue-200">
-                  Blend your photos with AI-generated elements to create magical
-                  scenes
-                </p>
-              </div>
-              <div className="bg-blue-900/30 backdrop-blur-sm p-6 rounded-xl border border-blue-500/30">
-                <Share className="w-12 h-12 text-blue-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Share & Connect</h3>
-                <p className="text-blue-200">
-                  Join our community of dreamers and share your visual stories
-                  with the world
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </main>
+              {/* Feature Cards */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
+              >
+                <div className="bg-blue-900/30 backdrop-blur-sm p-6 rounded-xl border border-blue-500/30">
+                  <BookOpen className="w-12 h-12 text-blue-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Visual Stories</h3>
+                  <p className="text-blue-200">
+                    Transform your dreams into stunning visual narratives with
+                    AI-powered art generation
+                  </p>
+                </div>
+                <div className="bg-blue-900/30 backdrop-blur-sm p-6 rounded-xl border border-blue-500/30">
+                  <Camera className="w-12 h-12 text-blue-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Memory Fusion</h3>
+                  <p className="text-blue-200">
+                    Blend your photos with AI-generated elements to create
+                    magical scenes
+                  </p>
+                </div>
+                <div className="bg-blue-900/30 backdrop-blur-sm p-6 rounded-xl border border-blue-500/30">
+                  <Share className="w-12 h-12 text-blue-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">
+                    Share & Connect
+                  </h3>
+                  <p className="text-blue-200">
+                    Join our community of dreamers and share your visual stories
+                    with the world
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </main>
+        </div>
+
+        <AuthDialog isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+        <GenreShowcase />
+
+        {/* Floating Elements */}
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-20 right-20 w-72 h-72 bg-purple-500/10 rounded-full filter blur-3xl"></div>
       </div>
-
-      {/* Genre Showcase */}
-      <GenreShowcase />
-
-      {/* Floating Elements */}
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl"></div>
-      <div className="absolute top-20 right-20 w-72 h-72 bg-purple-500/10 rounded-full filter blur-3xl"></div>
-    </div>
+    </SessionProvider>
   );
 };
 

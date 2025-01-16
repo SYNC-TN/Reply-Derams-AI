@@ -1,4 +1,3 @@
-// app/api/GeminiAI/route.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
@@ -20,38 +19,49 @@ export async function POST(req: Request) {
     const language = requestBody?.language || "EN";
     const description = requestBody?.description;
 
-    const prompt = `I have a dream story that I want you to organize into a JSON format. Each JSON object should represent a single page of the story. The structure should include:
+    const prompt = `I want you to create a book cover description in JSON format based on a dream description.
 
-      pageNumber: The number of the page.
-      imagePrompt: A short text that describes what the image for this page should depict.
-      text: The story text for this page.
-      ALSO, use the following language ${language} on the text field only and the imagePrompt field remains in English.
-      ALSO, narrate each page from the first-person perspective, like using 'I' as the subject.
-      Respond ONLY with the JSON array, no additional text or markdown formatting.
-      Dream Description: ${description}`;
+The JSON structure should include:
+  title: A captivating title for the dream story (20 characters max).
+  subtitle: A brief subtitle that adds context (30 characters max).
+  coverImagePrompt: A detailed prompt to generate the cover image (focus on dreamlike, surreal imagery).
+  mood: The emotional tone of the dream (e.g., peaceful, mysterious, unsettling).
+  theme: The main theme or motif of the dream.
+  dominantColors: An array of 2-3 colors that would work well for the cover.
+  fontStyle: Suggested font style for the cover (e.g., serif, modern, handwritten).
 
+Use the following language ${language} for the title and subtitle and theme and mood fields only. All other fields should be in English.
+
+Respond ONLY with the JSON object, no additional text or markdown formatting.
+
+Dream Description: ${description}`;
+    console.log("Language : ", language);
     if (!prompt) {
       return NextResponse.json(
         { error: "Prompt is required" },
         { status: 400 }
       );
     }
-
     if (!language) {
       return NextResponse.json(
         { error: "Language parameter is required" },
         { status: 400 }
       );
     }
-
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.9,
+        topP: 0.8,
+      },
+    });
     const response = await result.response.text();
 
     // Clean up the response to ensure valid JSON
     const cleanedResponse = response
-      .replace(/```json\s*/g, "")
-      .replace(/```\s*$/g, "")
-      .trim();
+      .replace(/```json\s*/g, "") // Remove ```json
+      .replace(/```\s*$/g, "") // Remove closing ```
+      .trim(); // Remove any extra whitespace
 
     // Validate JSON before sending
     try {

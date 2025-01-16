@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 import connectDB from "@/lib/mongodb";
 import { User } from "@/app/models/User";
 import { NextRequest } from "next/server";
+import { encode } from "next-auth/jwt";
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -54,7 +55,21 @@ export async function PATCH(request: NextRequest) {
     user.name = newUsername;
     await user.save();
 
-    return NextResponse.json({
+    // Create updated token data
+    const updatedToken = {
+      ...token,
+      name: newUsername,
+    };
+
+    // Encode the new token
+    const newToken = await encode({
+      token: updatedToken,
+      secret: process.env.NEXTAUTH_SECRET!,
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
+
+    // Create the response
+    const response = NextResponse.json({
       message: "Username updated successfully",
       user: {
         id: user._id,
@@ -63,6 +78,19 @@ export async function PATCH(request: NextRequest) {
         image: user.image,
       },
     });
+
+    // Set the new token in cookies
+    response.cookies.set({
+      name: "next-auth.session-token",
+      value: newToken,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
+
+    return response;
   } catch (error) {
     console.error("Error updating username:", error);
     if (error instanceof Error) {

@@ -10,6 +10,7 @@ import { BookDataProvider, useBookData } from "./BookData";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import "./CreateForm.css";
+import { set } from "mongoose";
 
 interface CreateDreamFormProps {
   onClose: () => void;
@@ -26,16 +27,36 @@ interface GeneratedPage {
   imageUrl: string;
 }
 
+interface CoverData {
+  coverImagePrompt: string;
+  coverImageUrl: string;
+  dominantColors: string[];
+  fontStyle: string;
+  mood: string;
+  subtitle: string;
+  theme: string;
+  title: string;
+}
+
+interface DreamFormData {
+  description: string;
+  artStyle: string;
+  language: string;
+  colorTheme: string;
+  imageStyleStrength: string;
+  imageResolution: string;
+  pages: GeneratedPage[];
+  coverData: CoverData;
+}
 const RATE_LIMIT_DELAY = 1000;
 const MAX_RETRIES = 3;
-
 function DreamFormContent({ onClose }: CreateDreamFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [storyPages, setStoryPages] = useState<Page[]>([]);
-
+  const [coverData, setCoverData] = useState<CoverData | null>(null);
   const {
     description,
     artStyle,
@@ -130,26 +151,49 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
     setProgress(0);
 
     try {
-      // First, generate the story structure
-      console.log("Sending language:", language);
-      console.log("Request body:", JSON.stringify({ description, language }));
-      const storyResponse = await fetch("/api/GeminiAI", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ description, language }),
-      });
+      // Generate story and cover
+      const [storyResponse, coverResponse] = await Promise.all([
+        fetch("/api/GeminiAI", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ description, language }),
+        }),
+        fetch("/api/GeminiAI/cover", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ description, language }),
+        }),
+      ]);
 
-      if (!storyResponse.ok) {
-        throw new Error(
-          `Failed to generate story: ${storyResponse.statusText}`
-        );
+      if (!coverResponse.ok || !storyResponse.ok) {
+        throw new Error("Failed to generate story or cover");
       }
 
-      const storyData = await storyResponse.json();
-      const parsedPages: Page[] = JSON.parse(storyData.response);
-      console.log("Parsed pages:", parsedPages);
+      // Process cover data
+      const coverResult = await coverResponse.json();
+      const parsedCoverData: CoverData = JSON.parse(coverResult.response);
+
+      // Generate cover image
+      const coverImageUrl = await generateImage(
+        parsedCoverData.coverImagePrompt
+      );
+      setCoverData(parsedCoverData);
+      const finalCoverData: CoverData = {
+        ...parsedCoverData,
+        coverImageUrl,
+        dominantColors: parsedCoverData.dominantColors || ["default"],
+        fontStyle: parsedCoverData.fontStyle || "default",
+        mood: parsedCoverData.mood || "neutral",
+        subtitle: parsedCoverData.subtitle || "",
+        theme: parsedCoverData.theme || "default",
+        title: parsedCoverData.title || description.slice(0, 30),
+      };
+
+      setCoverData(finalCoverData);
+
+      // Process story data
+      const storyResult = await storyResponse.json();
+      const parsedPages: Page[] = JSON.parse(storyResult.response);
 
       if (!Array.isArray(parsedPages) || parsedPages.length === 0) {
         throw new Error("Invalid story structure generated");
@@ -157,59 +201,47 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
       setStoryPages(parsedPages);
 
-      // Generate images for each page
+      // Generate page images
       const generatedPages: GeneratedPage[] = [];
-
       for (let i = 0; i < parsedPages.length; i++) {
-        try {
-          updateProgress(i, parsedPages.length);
-          const imageUrl = await generateImage(parsedPages[i].imagePrompt);
-          generatedPages.push({
-            text: parsedPages[i].text,
-            imageUrl,
-          });
-        } catch (error) {
-          console.error(`Failed to generate image for page ${i + 1}:`, error);
-          throw new Error(
-            `Failed to generate image for page ${i + 1}: ${
-              error instanceof Error ? error.message : "Unknown error"
-            }`
-          );
-        }
+        updateProgress(i, parsedPages.length);
+        const imageUrl = await generateImage(parsedPages[i].imagePrompt);
+        generatedPages.push({
+          text: parsedPages[i].text,
+          imageUrl,
+        });
       }
 
-      // Prepare and submit the final form data
-      const formData = {
+      // Prepare final form data
+      const formData: DreamFormData = {
         description,
         artStyle: artStyle || "realistic",
         language: language || "en",
         colorTheme: colorTheme || "default",
-        imageStyleStrength: imageStyleStrength || "medium",
+        imageStyleStrength: String(imageStyleStrength) || "medium",
         imageResolution: imageResolution || "512x512",
         pages: generatedPages,
+        coverData: finalCoverData,
       };
 
+      console.log("Final form data:", formData);
+      // Save dream
       const saveResponse = await fetch("/api/dreams", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Credentials": "true",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      const result = await saveResponse.json();
-
-      if (!saveResponse.ok || !result.data?.url) {
-        throw new Error(result.error || "Failed to save dream book");
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json();
+        throw new Error(errorData.error || "Failed to save dream book");
       }
 
-      toast({
-        title: "Success",
-        description: "Your dream book has been created!",
-        duration: 3000,
-      });
+      const result = await saveResponse.json();
+
+      if (!result.data?.url) {
+        throw new Error("Invalid response from server");
+      }
 
       await router.push(`/dreams/${result.data.url}`);
       onClose();
@@ -223,6 +255,10 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         duration: 5000,
       });
     } finally {
+      console.log("Toast :Your Story has been created!");
+      toast({
+        title: "Your Story has been created!",
+      });
       setIsGenerating(false);
       setProgress(0);
     }

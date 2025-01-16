@@ -76,19 +76,22 @@ const page = () => {
 
       if (response.ok) {
         console.log("Username updated successfully");
-        // Don't modify session directly, let update() handle it
-        await update(); // This will trigger a session refresh
+        // Update the session with the new data
+        await update({
+          ...session,
+          user: {
+            ...session?.user,
+            name: username,
+          },
+        });
         setIsChanged(false);
       } else {
         console.error("Failed to update username:", data.error);
-        // You might want to show an error message to the user here
       }
     } catch (error) {
       console.error("Error updating username:", error);
-      // You might want to show an error message to the user here
     }
   };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -171,7 +174,6 @@ const page = () => {
                       <Button
                         variant="destructive"
                         className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
-                        onClick={handleDeleteAccount}
                       >
                         <Trash2 className="w-4 h-4" />
                         Delete Account
@@ -215,7 +217,10 @@ const page = () => {
                         <AlertDialogCancel className="bg-transparent hover:bg-slate-800 text-slate-300 border border-slate-700">
                           Cancel
                         </AlertDialogCancel>
-                        <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white font-medium transition-colors duration-200">
+                        <AlertDialogAction
+                          className="bg-red-600 hover:bg-red-700 text-white font-medium transition-colors duration-200"
+                          onClick={handleDeleteAccount}
+                        >
                           Delete Account
                         </AlertDialogAction>
                       </AlertDialogFooter>

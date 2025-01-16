@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Moon,
   BookOpen,
@@ -69,8 +69,11 @@ const optionItems = [
     url: "/dreams/support",
   },
 ];
+
 export function AppSidebar() {
   const { data: session } = useSession();
+  const [currentPath, setCurrentPath] = useState("");
+
   const {
     state,
     open,
@@ -80,7 +83,22 @@ export function AppSidebar() {
     isMobile,
     toggleSidebar,
   } = useSidebar();
-  const [SelectedTab, setSelectedTab] = useState("Dreams");
+
+  useEffect(() => {
+    // Get the stored path or current path on initial load
+    const storedPath =
+      localStorage.getItem("currentPath") || window.location.pathname;
+    setCurrentPath(storedPath);
+  }, []);
+
+  const handleNavigation = (url: string) => {
+    setCurrentPath(url);
+    localStorage.setItem("currentPath", url);
+  };
+
+  document.addEventListener("DOMContentLoaded", () =>
+    setCurrentPath(window.location.pathname)
+  );
   return (
     <Sidebar
       className="w-64 bg-[#0a1929] border-r border-blue-900/20 flex flex-col"
@@ -90,7 +108,7 @@ export function AppSidebar() {
         {/* Logo */}
         <Link href="/">
           <div className="flex flex-col items-center space-x-2">
-            <div className="rounded-full overflow-hidden ">
+            <div className="rounded-full overflow-hidden">
               <img
                 src="/logo.png"
                 className="h-full w-full transition-transform scale-125"
@@ -111,26 +129,33 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {applicationItems.map((item, index) => (
-                <a
+                <Link
                   href={item.url}
                   key={index}
-                  onClick={() => setSelectedTab(item.title)}
+                  onClick={() => handleNavigation(item.url)}
                 >
                   <SidebarMenuItem className="px-0">
                     <SidebarMenuButton
                       asChild
                       variant="default"
-                      className={`w-full justify-start text-blue-100 hover:bg-blue-900/40 ${
-                        SelectedTab === item.title ? "bg-blue-900/40" : ""
+                      className={`w-full justify-start text-blue-100  ${
+                        currentPath === item.url
+                          ? "bg-blue-900/40"
+                          : "hover:bg-blue-900/20"
                       }`}
                     >
-                      <Button variant="ghost" className="w-full justify-start">
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start hover:bg-blue-900/40 active:bg-blue-900/40 focus:bg-blue-900/40 ${
+                          currentPath === item.url ? "bg-blue-900/40" : ""
+                        }`}
+                      >
                         <item.icon className="w-5 h-5 mr-3" />
                         {item.title}
                       </Button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                </a>
+                </Link>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -143,21 +168,28 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {optionItems.map((item) => (
+              {optionItems.map((item, index) => (
                 <Link
                   href={item.url}
-                  onClick={() => setSelectedTab(item.title)}
-                  key={item.title}
+                  key={index}
+                  onClick={() => handleNavigation(item.url)}
                 >
                   <SidebarMenuItem className="px-0">
                     <SidebarMenuButton
                       asChild
                       variant="default"
-                      className={`w-full justify-start text-blue-100 hover:bg-blue-900/40 ${
-                        SelectedTab === item.title ? "bg-blue-900/40" : ""
+                      className={`w-full justify-start text-blue-100 ${
+                        currentPath === item.url
+                          ? "bg-blue-900/40"
+                          : "hover:bg-blue-900/20"
                       }`}
                     >
-                      <Button variant="ghost" className="w-full justify-start">
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start hover:bg-blue-900/40 active:bg-blue-900/40 focus:bg-blue-900/40 ${
+                          currentPath === item.url ? "bg-blue-900/40" : ""
+                        }`}
+                      >
                         <item.icon className="w-5 h-5 mr-3" />
                         {item.title}
                       </Button>
@@ -169,37 +201,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Pro Access Card */}
-        {/*
-          <div className="mt-8">
-            <div className="bg-blue-900/20 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <Star className="w-8 h-8 text-blue-400" />
-                <h3 className="text-lg font-semibold text-white ml-2">
-                  Pro Access
-                </h3>
-              </div>
-              <p className="text-sm text-blue-200 mb-3">
-                Unlock unlimited dream visualizations and advanced features.
-              </p>
-              <Button className="w-full bg-blue-500 hover:bg-blue-600">
-                Upgrade
-              </Button>
-            </div>
-          </div>
-          */}
-
         {/* Avatar Section at bottom */}
         <SidebarFooter className="mt-auto">
-          <div className="pt-2 border-t border-blue-900/20 ">
+          <div className="pt-2 border-t border-blue-900/20">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="justify-start hover:bg-blue-900/40 px-2"
+                  className="justify-start hover:bg-blue-900/40"
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8 ">
+                    <Avatar className="h-8 w-8">
                       <AvatarImage
                         src={session?.user?.image || ""}
                         alt={session?.user?.name || ""}
@@ -220,25 +232,26 @@ export function AppSidebar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-56 ml-auto"
+                className="w-40 ml-auto bg-[#0f1420]/95 border border-[#2a3040] backdrop-blur-sm"
                 align="end"
                 side="right"
                 sideOffset={8}
               >
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-[#b4c6db] font-serif">
+                  My Account
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-[#2a3040]" />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
+                  <Link href="/dreams/settings">
+                    <DropdownMenuItem className="focus:bg-[#1a2030] text-[#a9c5dd] hover:text-[#fff] cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                  </Link>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-[#2a3040]" />
                 <DropdownMenuItem
+                  className="focus:bg-[#1a2030] text-[#a9c5dd] hover:text-[#fff] cursor-pointer"
                   onClick={() => {
                     signOut({ callbackUrl: "/" });
                   }}

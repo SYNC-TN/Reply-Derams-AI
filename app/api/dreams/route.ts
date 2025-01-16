@@ -1,14 +1,26 @@
 // app/api/dreams/route.ts
+
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
-
+import { v4 as uuidv4 } from "uuid";
 interface Page {
   text: string;
   imageUrl: string;
+}
+
+interface CoverDataProps {
+  coverImagePrompt: string;
+  coverImageUrl: string;
+  dominantColors: string[];
+  fontStyle: string;
+  mood: string;
+  subtitle: string;
+  theme: string;
+  title: string;
 }
 
 interface DreamRequestBody {
@@ -19,6 +31,7 @@ interface DreamRequestBody {
   imageStyleStrength: string;
   imageResolution: string;
   pages: Page[];
+  coverData: CoverDataProps;
 }
 
 export async function POST(req: Request) {
@@ -32,12 +45,13 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log("Incoming request body:", await req.clone().text());
+    // Log the raw request body
+
     const body: DreamRequestBody = await req.json();
-    console.log("Parsed body:", body);
-
-    // ... (validation checks remain the same)
-
+    console.log(
+      "Raw request body:",
+      body.coverData || "No cover data provided"
+    );
     await connectDB();
 
     const user = await mongoose
@@ -51,16 +65,31 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create a temporary ID to generate the URL
     const tempId = new mongoose.Types.ObjectId();
+    const url = uuidv4();
+    const truncatedDescription = body.description.slice(0, 30) + "...";
 
-    const dreamStory = await DreamStory.create({
-      _id: tempId, // Set the ID explicitly
+    // Ensure all required fields are present in cover data
+    const defaultCoverData = {
+      coverImagePrompt: "Default dream cover image",
+      coverImageUrl: "",
+      dominantColors: ["blue"],
+      fontStyle: "default",
+      mood: "peaceful",
+      subtitle: "A journey through dreams",
+      theme: "default",
+      title: truncatedDescription,
+    };
+
+    // Create cover data with all required fields
+
+    const dreamStoryData = {
+      _id: tempId,
       User: user._id,
-      url: `/${tempId}`, // Set the URL using the ID
-      name: `Dream: ${body.description.slice(0, 30)}...`,
+      url: url,
+      name: `Dream: ${truncatedDescription}`,
       description: body.description,
-      title: `Dream: ${body.description.slice(0, 30)}...`,
+      title: `Dream: ${truncatedDescription}`,
       options: [
         {
           artStyle: body.artStyle || "realistic",
@@ -77,7 +106,22 @@ export async function POST(req: Request) {
         text: page.text,
         image: page.imageUrl,
       })),
-    });
+      coverData: {
+        coverImagePrompt:
+          body.coverData.coverImagePrompt || defaultCoverData.coverImagePrompt,
+        coverImageUrl:
+          body.coverData.coverImageUrl || defaultCoverData.coverImageUrl,
+        dominantColors:
+          body.coverData.dominantColors || defaultCoverData.dominantColors,
+        fontStyle: body.coverData.fontStyle || defaultCoverData.fontStyle,
+        mood: body.coverData.mood || defaultCoverData.mood,
+        subtitle: body.coverData.subtitle || defaultCoverData.subtitle,
+        theme: body.coverData.theme || defaultCoverData.theme,
+        title: body.coverData.title || defaultCoverData.title,
+      },
+    };
+
+    const dreamStory = await DreamStory.create(dreamStoryData);
 
     const populatedDreamStory = await DreamStory.findById(dreamStory._id)
       .populate("User")
@@ -95,64 +139,12 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("Error creating dream:", error);
+    if (error instanceof mongoose.Error.ValidationError) {
+      console.error("Validation error details:", error.errors);
+    }
     return NextResponse.json(
       {
         error: "Failed to create dream",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
-  }
-}
-
-// ... (GET endpoint remains the same)
-// Add GET endpoint to fetch user's dreams
-export async function GET(req: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { error: "Unauthorized: Please sign in to view dreams" },
-        { status: 401 }
-      );
-    }
-
-    await connectDB();
-
-    const user = await mongoose
-      .model("User")
-      .findOne({ email: session.user.email });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found in database" },
-        { status: 404 }
-      );
-    }
-
-    // Fetch all dreams for the user
-    const dreams = await DreamStory.find({ User: user._id })
-      .populate("User")
-      .populate("options.advancedOption")
-      .sort({ createdAt: -1 }); // Sort by newest first
-
-    return new NextResponse(
-      JSON.stringify({
-        success: true,
-        data: dreams,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-  } catch (error) {
-    console.error("Error fetching dreams:", error);
-
-    return NextResponse.json(
-      {
-        error: "Failed to fetch dreams",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }

@@ -110,7 +110,7 @@ const GenreShowcase = () => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.2 }}
                 className={`h-72 rounded-xl p-6 bg-gradient-to-b ${genre.gradient} bg-opacity-20 backdrop-blur-sm
-                border border-white/10 hover:border-white/20`}
+              border border-white/10 hover:border-white/20`}
               >
                 <div className="flex flex-col items-center justify-center h-full space-y-4">
                   <motion.div
@@ -141,7 +141,7 @@ const GenreShowcase = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: hoveredGenre === genre.name ? 0.3 : 0 }}
                 className={`absolute inset-0 -z-10 rounded-xl
-                bg-gradient-to-b ${genre.gradient} blur-xl`}
+              bg-gradient-to-b ${genre.gradient} blur-xl`}
               />
             </motion.div>
           ))}
@@ -180,7 +180,7 @@ const GenreShowcase = () => {
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 className={`w-20 h-20 mx-auto mb-6 rounded-full ${feature.bgColor} 
-                flex items-center justify-center`}
+                flex items-center justify-center `}
               >
                 {feature.icon}
               </motion.div>

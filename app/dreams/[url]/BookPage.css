@@ -1,0 +1,13 @@
+.page {
+  /* Base page styling */
+  background: url("https://i.imgur.com/0kjMcUe.png");
+  filter: brightness(0.95) sepia(30%) saturate(80%);
+  padding: 20px;
+  margin-top: 15px;
+  /* Primary border */
+  border: 2px solid rgba(0, 0, 0, 0.8);
+
+  /* Main page shadow */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 2px 2px 0 #fff, 2px 2px 0 1px #000,
+    4px 4px 0 #fff, 4px 4px 0 1px #000, 6px 6px 0 #fff, 6px 6px 0 1px #000;
+}
