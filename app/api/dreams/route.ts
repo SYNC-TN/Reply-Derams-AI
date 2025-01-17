@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-
+    console.log("Session user:", session.user);
     // Log the raw request body
 
     const body: DreamRequestBody = await req.json();
@@ -86,6 +86,7 @@ export async function POST(req: Request) {
     const dreamStoryData = {
       _id: tempId,
       User: user._id,
+      email: session.user.email,
       url: url,
       name: `Dream: ${truncatedDescription}`,
       description: body.description,

@@ -45,15 +45,20 @@ const CoverDataSchema = new mongoose.Schema(
 const DreamStorySchema = new mongoose.Schema(
   {
     User: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String, // Changed from ObjectId to String to handle OAuth IDs
       required: true,
+      index: true,
     },
     url: {
       type: String,
       required: true,
       unique: true,
       index: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
     },
     name: {
       type: String,
