@@ -2,6 +2,8 @@
 import Book from "./Book";
 import { BookIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import useSound from "use-sound";
+
 // Types
 interface Stats {
   likes?: number;
@@ -21,6 +23,8 @@ interface BookShelfProps {
 }
 
 const BookShelf: React.FC<BookShelfProps> = ({ title, books }) => {
+  const BookOpenSfx = "/book-drop.mp3";
+  const [play] = useSound(BookOpenSfx, { volume: 0.2 });
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -40,6 +44,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ title, books }) => {
             {books.map((book, index) => (
               <div key={index} className="flex justify-center ">
                 <motion.div
+                  onHoverStart={() => play()}
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-4"

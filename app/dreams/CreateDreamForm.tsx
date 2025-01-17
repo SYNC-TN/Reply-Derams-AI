@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles } from "lucide-react";
 import ArtStyle from "./ArtStyle";
@@ -73,6 +73,19 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
     imageResolution: "",
   };
 
+  useEffect(() => {
+    if (isGenerating) {
+      console.log("Toast :Your Story still generating!");
+      toast({
+        title: "Your Story still generating!",
+      });
+    }
+    if (progress === 100) {
+      toast({
+        title: "Your Story has been created!",
+      });
+    }
+  }, [isGenerating]);
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -137,7 +150,11 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const toastId = toast({
+      title: "Processing",
+      description: "Your book still generating...",
+      duration: Infinity, // Keep the toast visible until dismissed
+    });
     if (!description.trim()) {
       toast({
         title: "Error",
@@ -238,7 +255,14 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       }
 
       const result = await saveResponse.json();
-
+      if (saveResponse.ok) {
+        toastId.dismiss();
+        toast({
+          title: "Success",
+          description: "Your book ready to read",
+          duration: 2000, // Closes after 5 seconds
+        });
+      }
       if (!result.data?.url) {
         throw new Error("Invalid response from server");
       }

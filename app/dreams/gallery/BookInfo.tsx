@@ -1,6 +1,10 @@
 import React from "react";
 import { BookHeart, Eye } from "lucide-react";
 import Link from "next/link";
+interface Stats {
+  likes?: number;
+  views?: number;
+}
 interface BookInfoProps {
   title: string;
   subtitle: string;
@@ -21,7 +25,7 @@ const BookInfo: React.FC<BookInfoProps> = ({
 }) => {
   return (
     <Link href={url}>
-      <div className="group relative h-60 w-48  max-md:w-40 perspective-1000">
+      <div className="group relative h-60 w-48  max-md:w-40 perspective-1000 ">
         <div className="absolute w-full h-full transition-all duration-500 transform-style-preserve-3d group-hover:rotate-y-5 group-hover:translate-x-4 group-hover:translate-y-[-10px] cursor-pointer">
           {/* Book spine effect */}
           <div className="absolute left-0 w-6 h-full bg-slate-700 transform origin-left skew-y-12"></div>

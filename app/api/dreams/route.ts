@@ -90,6 +90,10 @@ export async function POST(req: Request) {
       name: `Dream: ${truncatedDescription}`,
       description: body.description,
       title: `Dream: ${truncatedDescription}`,
+      stats: {
+        likes: 0,
+        views: 0,
+      },
       options: [
         {
           artStyle: body.artStyle || "realistic",

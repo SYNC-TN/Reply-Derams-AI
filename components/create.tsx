@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import CreateDreamForm from "./app/dreams/CreateDreamForm";
+import CreateDreamForm from "../app/dreams/CreateDreamForm";
 
 const Create = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +19,7 @@ const Create = () => {
         size="lg"
         onClick={() => setIsOpen(true)}
       >
-        Create Dream →
+        Create Story →
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

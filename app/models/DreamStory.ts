@@ -70,6 +70,10 @@ const DreamStorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    stats: {
+      likes: { type: Number, default: 0 },
+      views: { type: Number, default: 0 },
+    },
     options: [OptionSchema],
     pages: [PageSchema],
     coverData: CoverDataSchema, // Changed to use the schema directly, not as a type

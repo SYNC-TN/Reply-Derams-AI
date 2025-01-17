@@ -1,7 +1,7 @@
 import React from "react";
 import { Star } from "lucide-react";
 import "./dreams.css";
-import Create from "../../create";
+import Create from "../../components/create";
 
 export default function Dreams() {
   return (
@@ -20,7 +20,7 @@ export default function Dreams() {
           Visualize your dreams
         </h2>
         <p className="text-blue-200 text-center max-w-md mb-8">
-          Transform your dreams into stunning visual stories using AI.
+          Transform your dreams and ideas into stunning visual stories using AI.
         </p>
         <Create />
       </div>
