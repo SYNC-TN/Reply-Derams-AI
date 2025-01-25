@@ -1,15 +1,8 @@
-import React, { useCallback, useState } from "react";
-import { ReactTags } from "react-tag-autocomplete";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useBookData } from "./BookData";
-import { Tag } from "lucide-react";
 import dreamTagSuggestions from "./dreamTagSuggestions";
+import Select, { MultiValue, ActionMeta } from "react-select";
 
 interface Tag {
   id: number;
@@ -22,27 +15,20 @@ const DreamTags = () => {
   const { tags, setTags } = useBookData();
   const [maxTags, setMaxTags] = useState(false);
 
-  const onAdd = useCallback(
-    (newTag: any) => {
-      if (tags.length >= 5) {
-        setMaxTags(true);
-        return;
-      }
-      setTags([...tags, newTag]);
-    },
-    [tags, setTags]
-  );
-
-  const onDelete = useCallback(
-    (tagIndex: number) => {
+  const handleTagChange = (
+    newTags: MultiValue<Tag>,
+    actionMeta: ActionMeta<Tag>
+  ) => {
+    if (newTags.length <= 5) {
+      setTags(newTags as Tag[]);
       setMaxTags(false);
-      setTags(tags.filter((_, i) => i !== tagIndex));
-    },
-    [tags, setTags]
-  );
+    } else {
+      setMaxTags(true);
+    }
+  };
 
   return (
-    <Card className="w-full bg-gray-900 text-white">
+    <Card className="w-full bg-[#0c1b2d] text-white">
       <CardHeader>
         <CardTitle>Add Tags to Your Story</CardTitle>
         {maxTags && (
@@ -51,31 +37,52 @@ const DreamTags = () => {
           </p>
         )}
       </CardHeader>
-      <CardContent>
-        <ReactTags
-          selected={tags}
-          suggestions={dreamTagSuggestions}
-          onAdd={onAdd}
-          onDelete={onDelete}
-          noOptionsText="No matching tags"
-          classNames={{
-            root: "react-tags",
-            rootIsActive: "is-active",
-            rootIsDisabled: "is-disabled",
-            rootIsInvalid: "is-invalid",
-            label: "react-tags__label",
-            tagList:
-              "react-tags__list grid grid-cols-3 gap-2 max-md:grid-cols-2",
-            tagListItem: "react-tags__list-item",
-            tag: "react-tags__tag bg-blue-600 text-white px-3 py-1 rounded-full",
-            tagName: "react-tags__tag-name truncate",
-            comboBox: "react-tags__combobox text-white",
-            input: "react-tags__combobox-input bg-gray-800 text-white",
-            listBox:
-              "react-tags__listbox bg-transparent shadow-lg rounded-md overflow-hidden",
-            option: "react-tags__listbox-option text-white",
-            optionIsActive: "is-active bg-blue-600",
-            highlight: "react-tags__listbox-option-highlight bg-sky-600",
+      <CardContent className="bg-[#0c1b2d]">
+        <Select
+          isMulti
+          name="DreamTags"
+          options={dreamTagSuggestions}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          onChange={handleTagChange}
+          value={tags}
+          styles={{
+            control: (provided) => ({
+              ...provided,
+              backgroundColor: "transparent",
+              borderColor: "transparent",
+            }),
+            option: (provided) => ({
+              ...provided,
+              backgroundColor: "transparent",
+              color: "white",
+              ":hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }),
+
+            multiValue: (provided) => ({
+              ...provided,
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+              color: "white",
+            }),
+
+            multiValueLabel: (provided) => ({
+              ...provided,
+              color: "white",
+            }),
+            menu: (provided) => ({
+              ...provided,
+              backgroundColor: "#0C1B2D",
+            }),
+            multiValueRemove: (provided) => ({
+              ...provided,
+              color: "white",
+              ":hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                color: "white",
+              },
+            }),
           }}
         />
       </CardContent>

@@ -1,10 +1,9 @@
-"use client";
 import React from "react";
-import Categorie from "./categorie";
+import AllCategories from "./allCategories";
 const page = () => {
   return (
-    <div className=" flex max-w-7xl mx-auto p-6 space-y-8">
-      <Categorie />
+    <div className=" flex max-w-7xl mx-auto p-10 space-y-8">
+      <AllCategories />
     </div>
   );
 };

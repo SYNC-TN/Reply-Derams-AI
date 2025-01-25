@@ -48,6 +48,7 @@ export async function POST(request: Request) {
       password: hashedPassword,
       name: username.trim(), // Use username as name
       provider: "credentials",
+      image: "https://i.ibb.co/9TN2nT1/rb-4707.png",
     });
 
     return NextResponse.json({
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
         id: user._id.toString(),
         email: user.email,
         name: user.name,
+        image: user.image,
       },
     });
   } catch (error) {

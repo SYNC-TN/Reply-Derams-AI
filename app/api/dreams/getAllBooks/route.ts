@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     })
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 }); // Optional: sort by most recent first
+      .sort({ createdAt: -1 }); // Sort by most recent first
 
     return NextResponse.json(dreams);
   } catch (error) {

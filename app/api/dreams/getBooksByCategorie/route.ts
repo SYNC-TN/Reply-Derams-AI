@@ -1,3 +1,5 @@
+//getBooksByCategorie.ts
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
@@ -9,6 +11,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const categorie = searchParams.get("categorie");
 
     const session = await getServerSession(authOptions);
     await connectDB();
@@ -17,18 +20,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userEmail = session.user.email;
-
-    // Calculate skip value for pagination
     const skip = (page - 1) * limit;
 
-    // Find paginated dreams
     let dreams = await DreamStory.find({
-      email: userEmail,
+      share: true,
+      /* $or: [
+        { "Tags.name": categorie },
+        { "Tags.value": categorie },
+        { "Tags.label": categorie },
+      ],*/
     })
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 }); // Optional: sort by most recent first
+      .sort({ createdAt: -1 }); // Sort by most recent first
 
     return NextResponse.json(dreams);
   } catch (error) {

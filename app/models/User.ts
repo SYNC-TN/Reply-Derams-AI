@@ -28,6 +28,8 @@ const UserSchema = new mongoose.Schema(
     image: {
       type: String,
       trim: true,
+      default:
+        "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?t=st=1737843955~exp=1737847555~hmac=47968cdf3a6e5b75617ea517be7e07e28789dd2052540707470c583ad0757fb8&w=740",
     },
   },
   {
