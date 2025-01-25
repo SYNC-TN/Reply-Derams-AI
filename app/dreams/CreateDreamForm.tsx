@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Tags } from "lucide-react";
 import ArtStyle from "./ArtStyle";
 import AdvancedOptions from "./AdvancedOptions";
 import LanguageSelect from "./LanguageSelect";
@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import "./CreateForm.css";
 import { set } from "mongoose";
+import { Share } from "next/font/google";
+import ShareBook from "./share";
+import DreamTags from "./Tags";
 
 interface CreateDreamFormProps {
   onClose: () => void;
@@ -41,12 +44,21 @@ interface CoverData {
 interface DreamFormData {
   description: string;
   artStyle: string;
+  share: boolean;
+  tags: Tag[];
   language: string;
-  colorTheme: string;
-  imageStyleStrength: string;
-  imageResolution: string;
+  bookTone: string;
+  storyLength: string;
+  perspective: string;
+  genre: string;
   pages: GeneratedPage[];
   coverData: CoverData;
+}
+interface Tag {
+  id: number;
+  name: string;
+  label: string;
+  value: string;
 }
 const RATE_LIMIT_DELAY = 1000;
 const MAX_RETRIES = 3;
@@ -61,16 +73,22 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
     description,
     artStyle,
     language,
-    colorTheme,
-    imageStyleStrength,
-    imageResolution,
+    share,
+    tags,
+    bookTone,
+    storyLength,
+    perspective,
+    genre,
   } = useBookData() || {
     description: "",
     artStyle: "",
     language: "",
-    colorTheme: "",
-    imageStyleStrength: "",
-    imageResolution: "",
+    share: false,
+    tags: [],
+    bookTone: "",
+    storyLength: "",
+    perspective: "",
+    genre: "",
   };
 
   useEffect(() => {
@@ -173,12 +191,26 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         fetch("/api/GeminiAI", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ description, language }),
+          body: JSON.stringify({
+            description,
+            language,
+            storyLength,
+            genre,
+            perspective,
+            bookTone,
+          }),
         }),
         fetch("/api/GeminiAI/cover", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ description, language }),
+          body: JSON.stringify({
+            description,
+            language,
+            storyLength,
+            genre,
+            perspective,
+            bookTone,
+          }),
         }),
       ]);
 
@@ -234,11 +266,14 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         description,
         artStyle: artStyle || "realistic",
         language: language || "en",
-        colorTheme: colorTheme || "default",
-        imageStyleStrength: String(imageStyleStrength) || "medium",
-        imageResolution: imageResolution || "512x512",
+        share: share || false,
+        tags: tags || [],
         pages: generatedPages,
         coverData: finalCoverData,
+        bookTone: bookTone || "neutral",
+        storyLength: storyLength || "medium",
+        perspective: perspective || "first-person",
+        genre: genre || "fantasy",
       };
 
       console.log("Final form data:", formData);
@@ -260,7 +295,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         toast({
           title: "Success",
           description: "Your book ready to read",
-          duration: 2000, // Closes after 5 seconds
+          duration: 2000, // Closes after 2 seconds
         });
       }
       if (!result.data?.url) {
@@ -290,11 +325,15 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 createForm">
-      <div className="m-auto">
+      <div className="m-auto ">
+        <div className="sharebtn fixed right-32 top-6 mt-4 mr-4 max-md:right-0">
+          <ShareBook />
+        </div>
         <DescriptionDream />
         <LanguageSelect />
         <ArtStyle />
         <AdvancedOptions />
+        {share && <DreamTags />}
 
         <div className="space-y-4">
           <div className="flex justify-end space-x-4">

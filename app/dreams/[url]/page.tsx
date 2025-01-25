@@ -188,6 +188,7 @@ export default function DreamBookPage() {
       <div className="relative aspect-[3/4] md:aspect-[16/10] w-full max-md:pb-20">
         <BookPageContainer
           book={book}
+          lang={book.options[0].language.toLocaleLowerCase()}
           currentPage={currentPage}
           onPageChange={setCurrentPage}
         />

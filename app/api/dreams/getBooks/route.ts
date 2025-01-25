@@ -25,8 +25,8 @@ export async function GET() {
     });
 
     // Find dreams without type conversion
-    const dreams = await DreamStory.find({
-      User: oauthId, // Just use the OAuth ID directly
+    let dreams = await DreamStory.find({
+      email: userEmail, // Just use the OAuth ID directly
     });
 
     console.log("Dreams found:", dreams);

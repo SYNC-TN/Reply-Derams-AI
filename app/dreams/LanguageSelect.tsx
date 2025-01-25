@@ -21,16 +21,17 @@ import { useBookData } from "./BookData";
 
 interface Language {
   code: string;
+  apiCode: string; // Add this new field for Gemini API
   name: string;
   greeting: string;
 }
 
 const languages: Language[] = [
-  { code: "US", name: "ENGLISH", greeting: "Hello" },
-  { code: "FR", name: "FRENCH", greeting: "Bonjour" },
-  { code: "ES", name: "SPANISH", greeting: "Hola" },
-  { code: "DE", name: "GERMAN", greeting: "Hallo" },
-  { code: "AR", name: "ARABIC", greeting: "مرحبا" },
+  { code: "EN", apiCode: "EN", name: "ENGLISH", greeting: "Hello" },
+  { code: "FR", apiCode: "FR", name: "FRENCH", greeting: "Bonjour" },
+  { code: "ES", apiCode: "ES", name: "SPANISH", greeting: "Hola" },
+  { code: "DE", apiCode: "DE", name: "GERMAN", greeting: "Hallo" },
+  { code: "AR", apiCode: "AR", name: "ARABIC", greeting: "مرحبا" },
 ];
 
 const LanguageSelect: React.FC = () => {

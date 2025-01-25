@@ -10,6 +10,7 @@ import {
   Star,
   LogOut,
   User,
+  Users,
   PackageOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,11 @@ const applicationItems = [
     title: "Dreams",
     icon: BookOpen,
     url: "/dreams",
+  },
+  {
+    title: "Community",
+    icon: Users,
+    url: "/dreams/community",
   },
   {
     title: "Gallery",
@@ -203,15 +209,21 @@ export function AppSidebar() {
 
         {/* Avatar Section at bottom */}
         <SidebarFooter className="mt-auto">
-          <div className="pt-2 border-t border-blue-900/20">
+          <div className="pt-2  border-t border-blue-900/20">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="justify-start hover:bg-blue-900/40"
+                  className={`justify-start hover:bg-blue-900/40 ${
+                    state === "collapsed" ? "w-10" : "w-full"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
+                    <Avatar
+                      className={`h-8 w-8 transition-transform duration-300 ${
+                        state === "collapsed" ? "-translate-x-4" : ""
+                      }`}
+                    >
                       <AvatarImage
                         src={session?.user?.image || ""}
                         alt={session?.user?.name || ""}

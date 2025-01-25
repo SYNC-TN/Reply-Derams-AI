@@ -99,7 +99,7 @@ const BookPage: React.FC<BookPageProps> = ({
                   src={imageUrl}
                   alt={`Page ${pageNumber}`}
                   fill
-                  className="object-cover rounded-lg"
+                  className="object-fill rounded-lg"
                   priority
                   sizes="(max-width: 768px) 50vw, 50vw"
                 />

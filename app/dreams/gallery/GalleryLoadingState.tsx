@@ -30,7 +30,7 @@ const GalleryLoadingState = () => {
         {/* Loading text */}
         <div className="space-y-3">
           <p className="text-[#b4c6db] text-lg font-serif italic">
-            Curating your gallery...
+            Displaying your gallery...
           </p>
           {/* Animated dots */}
           <div className="flex justify-center gap-2">

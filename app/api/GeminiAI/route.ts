@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const language = requestBody?.language || "EN";
     const description = requestBody?.description;
 
-    const prompt = `I have a dream story that I want you to organize into a JSON format. Each JSON object should represent a single page of the story. The structure should include:
+    const prompt = `I have a dream story that I want you to organize into a JSON format. Each JSON object should represent a single page of the   story. The structure should include:
 
       pageNumber: The number of the page.
       imagePrompt: A short text that describes what the image for this page should depict.

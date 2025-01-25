@@ -12,9 +12,10 @@ const PageSchema = new mongoose.Schema(
 
 const AdvancedOptionSchema = new mongoose.Schema(
   {
-    theme: { type: String, required: true },
-    styleStrength: { type: String, required: true },
-    resolution: { type: String, required: true },
+    bookTone: { type: String, default: "neutral" },
+    storyLength: { type: String, default: "medium" },
+    perspective: { type: String, default: "first-person" },
+    genre: { type: String, default: "fantasy" },
   },
   { _id: false }
 );
@@ -65,6 +66,21 @@ const DreamStorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    share: {
+      type: Boolean,
+      default: false,
+    },
+    Tags: {
+      type: [
+        {
+          id: { type: Number, required: true },
+          name: { type: String, required: true },
+          label: { type: String, required: true },
+          value: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
     description: {
       type: String,
       required: true,
@@ -75,6 +91,7 @@ const DreamStorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     stats: {
       likes: { type: Number, default: 0 },
       views: { type: Number, default: 0 },

@@ -24,7 +24,7 @@ interface BookShelfProps {
 
 const BookShelf: React.FC<BookShelfProps> = ({ title, books }) => {
   const BookOpenSfx = "/book-drop.mp3";
-  const [play] = useSound(BookOpenSfx, { volume: 0.05 });
+  const [play] = useSound(BookOpenSfx, { volume: 0.05  });
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}

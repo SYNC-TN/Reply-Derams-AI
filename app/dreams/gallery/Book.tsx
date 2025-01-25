@@ -10,6 +10,7 @@ interface Stats {
 interface BookData {
   title: string;
   subtitle: string;
+  url : string;
   cover: string;
   stats: Stats;
 }

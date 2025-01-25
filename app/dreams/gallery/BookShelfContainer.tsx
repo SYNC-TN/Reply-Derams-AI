@@ -206,7 +206,7 @@ const BookShelfContainer: React.FC = () => {
         books={filteredAndSortedBooks.map((dream) => ({
           title: dream.coverData.title,
           url: dream.url,
-          cover: dream.coverData?.coverImageUrl || "/api/placeholder/192/230",
+          cover: dream.coverData?.coverImageUrl || "coverDefault.png",
           subtitle: dream.coverData.subtitle,
           stats: {
             views: dream.stats?.likes || 0,

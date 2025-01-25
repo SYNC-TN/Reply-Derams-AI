@@ -11,7 +11,12 @@ interface Page {
   text: string;
   imageUrl: string;
 }
-
+interface Tag {
+  id: number;
+  name: string;
+  label: string;
+  value: string;
+}
 interface CoverDataProps {
   coverImagePrompt: string;
   coverImageUrl: string;
@@ -25,11 +30,14 @@ interface CoverDataProps {
 
 interface DreamRequestBody {
   description: string;
+  share: boolean;
+  tags: Tag[];
   artStyle: string;
   language: string;
-  colorTheme: string;
-  imageStyleStrength: string;
-  imageResolution: string;
+  bookTone: string;
+  storyLength: string;
+  perspective: string;
+  genre: string;
   pages: Page[];
   coverData: CoverDataProps;
 }
@@ -89,6 +97,8 @@ export async function POST(req: Request) {
       email: session.user.email,
       url: url,
       name: `Dream: ${truncatedDescription}`,
+      share: body.share || false,
+      Tags: body.tags || [],
       description: body.description,
       title: `Dream: ${truncatedDescription}`,
       stats: {
@@ -100,9 +110,10 @@ export async function POST(req: Request) {
           artStyle: body.artStyle || "realistic",
           language: body.language || "en",
           advancedOption: {
-            theme: body.colorTheme || "default",
-            styleStrength: body.imageStyleStrength || "medium",
-            resolution: body.imageResolution || "512x512",
+            bookTone: body.bookTone || "neutral",
+            storyLength: body.storyLength || "medium",
+            perspective: body.perspective || "first-person",
+            genre: body.genre || "fantasy",
           },
         },
       ],

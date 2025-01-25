@@ -10,15 +10,18 @@ import {
 import BookPage from "./BookPage";
 import useSound from "use-sound";
 import BookNavigation from "./BookNavigation";
+import { set } from "mongoose";
 
 interface DreamBookContainerProps {
   book: { pages: { text: string; image: string }[] };
+  lang: string;
   currentPage: number;
   onPageChange: (page: number) => void;
 }
 
 export default function DreamBookContainer({
   book,
+  lang,
   currentPage,
   onPageChange,
 }: DreamBookContainerProps) {
@@ -34,6 +37,7 @@ export default function DreamBookContainer({
   const autoReadingRef = useRef(false);
   const flipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const nextPageRef = useRef<number>(currentPage);
+  const [language, setLanguage] = useState("en");
   const isFlippingRef = useRef(false);
   const StoreReadingStats = localStorage.setItem(
     "isReading",
@@ -41,6 +45,10 @@ export default function DreamBookContainer({
   );
 
   useEffect(() => {
+    if (lang) {
+      console.log("Language is set to: ", lang);
+      setLanguage(lang);
+    }
     if (localStorage.getItem("isReading")) {
       console.log("autoRead is set to: ", localStorage.getItem("isReading"));
       setAutoTurnEnabled(
@@ -88,19 +96,24 @@ export default function DreamBookContainer({
 
   const startReading = async (
     autoReading = false,
-    pageToRead = currentPage
+    pageToRead = currentPage,
+    speed = 1.1 // Add speed parameter
   ) => {
     try {
       setIsReading(true);
       isReadingRef.current = true;
       autoReadingRef.current = autoReading;
 
-      const response = await fetch("/api/dreams/voiceAI", {
+      const response = await fetch("/api/dreams/gtts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: book.pages[pageToRead].text }),
+        body: JSON.stringify({
+          text: book.pages[pageToRead].text,
+          lang: language,
+          speed: speed, // Send speed to API
+        }),
       });
 
       if (!response.ok) throw new Error("Failed to get audio");
@@ -115,6 +128,9 @@ export default function DreamBookContainer({
 
       if (audioRef.current) {
         audioRef.current.src = audioUrl;
+        // Set the playback rate
+
+        audioRef.current.playbackRate = speed;
         await audioRef.current.play().catch((error) => {
           console.error("Error playing audio:", error);
           stopReading();
@@ -125,7 +141,6 @@ export default function DreamBookContainer({
       stopReading();
     }
   };
-
   const flipPage = (newDirection: "next" | "prev") => {
     if (isFlippingRef.current) return;
 
@@ -218,7 +233,7 @@ export default function DreamBookContainer({
   }, [currentPage]);
 
   return (
-    <div className="relative w-full h-full md:scale-90 max-md:h-[calc(70vh)] z-50 overflow-visible">
+    <div className="relative w-full h-full md:scale-90 max-md:h-[calc(80vh)] z-50 overflow-visible">
       <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50 flex gap-4">
         <button
           onClick={() => {

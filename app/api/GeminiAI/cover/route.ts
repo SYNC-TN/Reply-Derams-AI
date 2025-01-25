@@ -18,19 +18,41 @@ export async function POST(req: Request) {
     const requestBody = await req.json();
     const language = requestBody?.language || "EN";
     const description = requestBody?.description;
-
+    const bookTone = requestBody?.bookTone || "mysterious";
+    const genre = requestBody?.genre || "fantasy";
+    const storyLength = requestBody?.storyLength || "medium";
+    const perspective = requestBody?.perspective || "first-person";
     const prompt = `I want you to create a book cover description in JSON format based on a dream description.
 
 The JSON structure should include:
   title: A captivating title for the dream story (20 characters max).
   subtitle: A brief subtitle that adds context (30 characters max).
-  coverImagePrompt: A detailed prompt to generate the cover image (focus on dreamlike, surreal imagery).
-  mood: The emotional tone of the dream (e.g., peaceful, mysterious, unsettling).
-  theme: The main theme or motif of the dream.
-  dominantColors: An array of 2-3 colors that would work well for the cover.
-  fontStyle: Suggested font style for the cover (e.g., serif, modern, handwritten).
+  coverImagePrompt: A detailed prompt to generate the cover image that incorporates:
+    - The ${bookTone} tone and atmosphere
+    - The ${genre} dream theme
+    - Dreamlike and surreal imagery fitting the selected mood
+    - Visual elements that reflect the story's emotional journey
+    - A style that matches the ${storyLength} format
+    - the story perspective is ${perspective}
+  mood: The emotional tone should reflect the selected ${bookTone} atmosphere
+  theme: The main theme should align with the chosen ${genre} category
+  dominantColors: An array of 2-3 colors that:
+    - Match the ${bookTone} mood
+    - Complement the ${genre} theme
+    - Create a dreamlike atmosphere
+  fontStyle: Suggested font style that:
+    - Matches the ${bookTone} tone
+    - Complements the ${genre} theme
+    - Maintains readability and impact
 
-Use the following language ${language} for the title and subtitle and theme and mood fields only. All other fields should be in English.
+Use ${language} for the title, subtitle, theme, and mood fields only. All other fields should be in English.
+ALSO :DONT MAKE THE PROMPT TOO LONG . 
+
+Additional style guidance:
+- Maintain the ${bookTone} atmosphere throughout the design
+- Ensure the imagery reflects the ${genre} dream theme
+- Consider the ${storyLength} format for composition
+- Create a cohesive visual narrative
 
 Respond ONLY with the JSON object, no additional text or markdown formatting.
 

@@ -99,7 +99,8 @@ export async function POST(req: Request) {
 
     if (response.status === 200) {
       const base64Image = Buffer.from(response.data).toString("base64");
-      console.log("Sketch completed successfully");
+      console.log("Image genereted successfully");
+
       return NextResponse.json({
         image: `data:image/jpeg;base64,${base64Image}`,
       });

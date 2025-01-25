@@ -86,10 +86,13 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log("Making request to Hugging Face for prompt:", prompt);
+    console.log(
+      "Making request to Hugging Face for prompt with Anime3_Schnell model:",
+      prompt
+    );
 
     const response = await makeRequestWithRetry(
-      "https://api-inference.huggingface.co/models/nerijs/dark-fantasy-movie-flux",
+      "https://api-inference.huggingface.co/models/Jovie/Anime3_Schnell",
       { inputs: prompt },
       {
         "Content-Type": "application/json",
@@ -100,6 +103,7 @@ export async function POST(req: Request) {
     if (response.status === 200) {
       const base64Image = Buffer.from(response.data).toString("base64");
       console.log("Image genereted successfully");
+
       return NextResponse.json({
         image: `data:image/jpeg;base64,${base64Image}`,
       });
