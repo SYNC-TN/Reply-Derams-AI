@@ -85,6 +85,14 @@ const BookShelfContainer: React.FC = () => {
   };
 
   useEffect(() => {
+    setBooks((prevBooks) => {
+      return prevBooks.filter((book, index) => {
+        return prevBooks.indexOf(book) === index;
+      });
+    });
+  }, []);
+
+  useEffect(() => {
     fetchBooks(page);
   }, [session, page]);
 

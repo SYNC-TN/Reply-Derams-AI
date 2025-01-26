@@ -24,17 +24,29 @@ export async function GET(request: Request) {
 
     let dreams = await DreamStory.find({
       share: true,
-      /* $or: [
+      $or: [
         { "Tags.name": categorie },
         { "Tags.value": categorie },
         { "Tags.label": categorie },
-      ],*/
+      ],
     })
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 }); // Sort by most recent first
-
-    return NextResponse.json(dreams);
+    const dreamModified = dreams.map((dream) => {
+      return {
+        User: dream.User,
+        url: dream.url,
+        name: dream.name,
+        title: dream.title,
+        stats: dream.stats,
+        coverData: dream.coverData,
+        createdAt: dream.createdAt,
+        updatedAt: dream.updatedAt,
+        __v: dream.__v,
+      };
+    });
+    return NextResponse.json(dreamModified);
   } catch (error) {
     console.error("Error details:", error);
     return NextResponse.json(

@@ -14,9 +14,12 @@ interface Stats {
   views?: number;
   shares?: number;
 }
+
 interface BooksCategorie {
   BooksTitle: string;
+  Tab: string | undefined;
 }
+
 interface CommunityBookProps {
   title: string;
   subtitle: string;
@@ -33,7 +36,7 @@ interface CommunityBookProps {
   createdAt: string;
 }
 
-const Categorie = ({ BooksTitle }: BooksCategorie) => {
+const Categorie = ({ BooksTitle, Tab }: BooksCategorie) => {
   const [selectedBooks, setSelectedBooks] = useState<CommunityBookProps[]>([]);
   const [slidesPerView, setSlidesPerView] = useState(4);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,15 +45,24 @@ const Categorie = ({ BooksTitle }: BooksCategorie) => {
   const [title, setTitle] = useState(BooksTitle);
 
   useEffect(() => {
+    setSelectedBooks((prevBooks) => {
+      return prevBooks.filter((book, index) => {
+        return prevBooks.indexOf(book) === index;
+      });
+    });
+  }, []);
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
         setSlidesPerView(1);
-      } else if (window.innerWidth > 1024) {
-        setSlidesPerView(4);
+      } else if (window.innerWidth < 768) {
+        setSlidesPerView(2);
       } else if (window.innerWidth < 1024) {
         setSlidesPerView(2);
-      } else {
+      } else if (window.innerWidth < 1280) {
         setSlidesPerView(3);
+      } else {
+        setSlidesPerView(4);
       }
     };
 
@@ -60,16 +72,27 @@ const Categorie = ({ BooksTitle }: BooksCategorie) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    // Reset state when category changes
+    setSelectedBooks([]);
+    setIsLoading(true);
+    setPage(1);
+    setHasMore(true);
+  }, [BooksTitle]);
+
   const fetchBooks = async (currentPage: number) => {
     try {
-      // Modify your API endpoint to support pagination
       setTitle(BooksTitle);
       const response = await fetch(
-        `/api/dreams/getBooksByCategorie?page=${currentPage}&limit=4&categorie=${title}`
+        `/api/dreams/getBooksByCategorie?page=${currentPage}&limit=${
+          Tab === "All" ? 4 : 20
+        }&categorie=${Tab === "All" ? title : Tab}`
       );
+
       if (!response.ok) {
         throw new Error("Failed to fetch books");
       }
+
       const data = await response.json();
 
       // Ensure data is an array and check if there are more books
@@ -96,53 +119,86 @@ const Categorie = ({ BooksTitle }: BooksCategorie) => {
   useEffect(() => {
     // Initial fetch
     fetchBooks(page);
-  }, [page]);
+  }, [page, BooksTitle]);
 
   const loadMoreBooks = () => {
-    // Increment page to trigger more book loading
     setPage((prevPage) => prevPage + 1);
   };
 
-  return (
-    <div className="w-full max-w-6xl mx-auto  ">
-      <h1 className="px-4 mb-6">{BooksTitle}</h1>
-      <Swiper
-        modules={[Autoplay, Pagination, Navigation, Mousewheel]}
-        spaceBetween={24}
-        slidesPerView={slidesPerView}
-        navigation={true}
-        mousewheel={true}
-        keyboard={true}
-        onReachEnd={() => {
-          // When user reaches the end of current slides, load more
-          if (hasMore) {
-            loadMoreBooks();
-          }
-        }}
-        autoplay={{
-          delay: 8000,
-          disableOnInteraction: true,
-        }}
-        className="mySwiper"
-      >
-        {isLoading
-          ? // Skeleton loading state
-            Array.from({ length: slidesPerView }).map((_, i) => (
-              <SwiperSlide
-                key={`skeleton-${i}`}
-                className="flex justify-center"
-              >
-                <Skeleton className="h-72 w-52 rounded-xl flex justify-center z-0" />
-              </SwiperSlide>
-            ))
-          : // Actual book content
-            (selectedBooks || []).map((book, index) => (
-              <SwiperSlide
-                key={`book-${index}`}
-                className="flex justify-center "
-                virtualIndex={index}
-              >
-                <div className="flex justify-center">
+  // Determine if we should use Swiper or grid based on Tab
+  const renderContent = () => {
+    if (Tab === "All") {
+      return (
+        <Swiper
+          modules={[Autoplay, Pagination, Navigation, Mousewheel]}
+          spaceBetween={10}
+          slidesPerView={slidesPerView}
+          navigation={true}
+          mousewheel={true}
+          keyboard={true}
+          breakpoints={{
+            320: { slidesPerView: 1.2, spaceBetween: 10 },
+            640: { slidesPerView: 2.2, spaceBetween: 10 },
+            768: { slidesPerView: 2.5, spaceBetween: 10 },
+            1024: { slidesPerView: 3.2, spaceBetween: 10 },
+            1280: { slidesPerView: 4.2, spaceBetween: 10 },
+          }}
+          onReachEnd={() => {
+            if (hasMore) {
+              loadMoreBooks();
+            }
+          }}
+          autoplay={{
+            delay: 8000,
+            disableOnInteraction: true,
+          }}
+          className="mySwiper"
+        >
+          {isLoading
+            ? Array.from({ length: Math.ceil(slidesPerView) }).map((_, i) => (
+                <SwiperSlide
+                  key={`skeleton-${i}`}
+                  className="flex justify-center"
+                >
+                  <Skeleton className="h-72 w-52 rounded-xl" />
+                </SwiperSlide>
+              ))
+            : (selectedBooks || []).map((book, index) => (
+                <SwiperSlide
+                  key={`book-${index}`}
+                  className="flex justify-center"
+                >
+                  <CommunityBookInfo
+                    title={book.title}
+                    subtitle={book.subtitle}
+                    url={book.url}
+                    author={{
+                      name: book.author?.name || "John Doe",
+                      username: book.author?.username || "johndoe",
+                    }}
+                    cover={book.coverData.coverImageUrl}
+                    stats={{
+                      likes: book.stats?.likes || 0,
+                      views: book.stats?.views || 0,
+                      shares: book.stats?.shares || 0,
+                    }}
+                    createdAt={book.createdAt}
+                  />
+                </SwiperSlide>
+              ))}
+        </Swiper>
+      );
+    } else {
+      return (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <div key={`skeleton-${i}`} className="flex justify-center">
+                  <Skeleton className="h-72 w-52 rounded-xl" />
+                </div>
+              ))
+            : (selectedBooks || []).map((book, index) => (
+                <div key={`book-${index}`} className="flex justify-center">
                   <CommunityBookInfo
                     title={book.title}
                     subtitle={book.subtitle}
@@ -160,13 +216,18 @@ const Categorie = ({ BooksTitle }: BooksCategorie) => {
                     createdAt={book.createdAt}
                   />
                 </div>
-              </SwiperSlide>
-            ))}
-      </Swiper>
-      {/* !isLoading && !hasMore && (
-        <div className="w-10 h-10 border-2  border-t-transparent animate-spin rounded-full "></div>
-      )*/}
+              ))}
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div className={"w-full max-w-6xl mx-auto px-2"}>
+      {selectedBooks.length > 0 && <h1 className="px-2 mb-4">{BooksTitle}</h1>}
+      {renderContent()}
     </div>
   );
 };
+
 export default Categorie;

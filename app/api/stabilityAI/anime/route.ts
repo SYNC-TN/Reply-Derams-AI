@@ -87,12 +87,12 @@ export async function POST(req: Request) {
     }
 
     console.log(
-      "Making request to Hugging Face for prompt with Anime3_Schnell model:",
+      "Making request to Hugging Face for prompt with phantasma-anime model:",
       prompt
     );
 
     const response = await makeRequestWithRetry(
-      "https://api-inference.huggingface.co/models/Jovie/Anime3_Schnell",
+      "https://api-inference.huggingface.co/models/alvdansen/phantasma-anime",
       { inputs: prompt },
       {
         "Content-Type": "application/json",

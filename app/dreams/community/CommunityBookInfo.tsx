@@ -2,7 +2,7 @@ import React from "react";
 import { BookHeart, Eye, Share2, User } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import Image from "next/image";
 interface Stats {
   likes?: number;
   views?: number;
@@ -63,9 +63,11 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
 
             {/* Cover image */}
             <div className="w-full h-4/5 overflow-hidden rounded-tr-lg">
-              <img
+              <Image
                 src={cover || "/defaultCover.png"}
                 alt={title}
+                width={208} // Adjust the width as needed
+                height={288} // Adjust the height as needed
                 className="w-full h-full object-cover"
               />
             </div>

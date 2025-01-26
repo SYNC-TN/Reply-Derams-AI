@@ -1,6 +1,7 @@
 import React from "react";
 import { BookHeart, Eye } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 interface Stats {
   likes?: number;
   views?: number;
@@ -33,9 +34,11 @@ const BookInfo: React.FC<BookInfoProps> = ({
           <div className="absolute w-full h-full bg-slate-800 rounded-r-lg shadow-xl">
             {/* Cover image */}
             <div className="w-full h-4/5 overflow-hidden rounded-tr-lg">
-              <img
+              <Image
                 src={cover || "/api/placeholder/192/230"}
                 alt={title}
+                width={208}
+                height={288}
                 className="w-full h-full object-cover"
               />
             </div>

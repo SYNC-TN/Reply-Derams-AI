@@ -37,7 +37,7 @@ const DreamTags = () => {
           </p>
         )}
       </CardHeader>
-      <CardContent className="bg-[#0c1b2d]">
+      <CardContent className="bg-[#0c1b2d] ">
         <Select
           isMulti
           name="DreamTags"
@@ -51,6 +51,15 @@ const DreamTags = () => {
               ...provided,
               backgroundColor: "transparent",
               borderColor: "transparent",
+            }),
+            valueContainer: (provided) => ({
+              ...provided,
+              backgroundColor: "transparent",
+              color: "white",
+            }),
+            input: (provided) => ({
+              ...provided,
+              color: "white",
             }),
             option: (provided) => ({
               ...provided,
