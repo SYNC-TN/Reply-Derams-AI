@@ -71,11 +71,30 @@ const BookShelfContainer: React.FC = () => {
       }
       const data = await response.json();
 
-      // Append new books to existing books
-      setBooks((prevBooks) => [...prevBooks, ...data]);
+      // Update books while removing duplicates based on a unique identifier
+      setBooks((prevBooks) => {
+        const uniqueBooks = [...prevBooks];
+
+        data.forEach((newBook: Dream) => {
+          // Check if book already exists based on some unique identifier
+          const existingBookIndex = uniqueBooks.findIndex(
+            (book) => book.url === newBook.url // Using URL as unique identifier
+          );
+
+          if (existingBookIndex === -1) {
+            // Book doesn't exist, add it
+            uniqueBooks.push(newBook);
+          } else {
+            // Book exists, update it with new data
+            uniqueBooks[existingBookIndex] = newBook;
+          }
+        });
+
+        return uniqueBooks;
+      });
 
       // Check if we've reached the end of books
-      setHasMore(data.length > 0); //if data.length > 0 return true else return false
+      setHasMore(data.length > 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch books");
       console.error("Error fetching books:", err);
@@ -85,19 +104,11 @@ const BookShelfContainer: React.FC = () => {
   };
 
   useEffect(() => {
-    setBooks((prevBooks) => {
-      return prevBooks.filter((book, index) => {
-        return prevBooks.indexOf(book) === index;
-      });
-    });
-  }, []);
-
-  useEffect(() => {
     fetchBooks(page);
   }, [session, page]);
 
   const loadMoreBooks = () => {
-    if (hasMore) {
+    if (hasMore && !loading) {
       setPage((prevPage) => prevPage + 1);
     }
   };
@@ -228,7 +239,7 @@ const BookShelfContainer: React.FC = () => {
           <Button
             onClick={loadMoreBooks}
             disabled={loading}
-            className="bg-blue-500 hover:bg-blue-600 text-white"
+            className="bg-blue-500 hover:bg-blue-600 text-white select-none"
           >
             {loading ? "Loading..." : "Load More Dreams"}
           </Button>

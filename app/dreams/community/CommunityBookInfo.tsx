@@ -3,35 +3,29 @@ import { BookHeart, Eye, Share2, User } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-interface Stats {
-  likes?: number;
-  views?: number;
-  shares?: number;
-}
+import type { CommunityBookProps, Author } from "./types";
 
-interface CommunityBookProps {
-  title: string;
-  subtitle: string;
-  url: string;
-  cover: string;
-  stats: Stats;
-  author: {
-    name: string;
-    avatar?: string;
-    username: string;
-  };
-  createdAt: string;
-}
+const defaultAuthor: Author = {
+  name: "Anonymous",
+  avatar: "https://i.ibb.co/9TN2nT1/rb-4707.png",
+  username: "username",
+};
 
 const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   title,
   subtitle,
   url,
   stats,
-  cover,
-  author,
+  coverData,
+  author = defaultAuthor, // Provide default value
   createdAt,
 }) => {
+  // Merge with defaults while maintaining type safety
+  const authorData: Author = {
+    ...defaultAuthor,
+    ...author,
+  };
+
   return (
     <Link href={url}>
       <div className="group relative h-72 w-52 max-md:w-44 perspective-1000">
@@ -45,17 +39,17 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
             <div className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10">
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
-                  <AvatarImage src={author.avatar} />
+                  <AvatarImage src={authorData.avatar} />
                   <AvatarFallback>
                     <User className="w-4 h-4" />
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-slate-200 truncate">
-                    {author.name}
+                    {authorData.name}
                   </p>
                   <p className="text-xs text-slate-400 truncate">
-                    @{author.username}
+                    @{authorData.username}
                   </p>
                 </div>
               </div>
@@ -64,10 +58,10 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
             {/* Cover image */}
             <div className="w-full h-4/5 overflow-hidden rounded-tr-lg">
               <Image
-                src={cover || "/defaultCover.png"}
+                src={coverData.coverImageUrl || "/defaultCover.png"}
                 alt={title}
-                width={208} // Adjust the width as needed
-                height={288} // Adjust the height as needed
+                width={208}
+                height={288}
                 className="w-full h-full object-cover"
               />
             </div>

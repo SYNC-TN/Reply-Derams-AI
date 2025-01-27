@@ -106,6 +106,26 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
   }, [isGenerating]);
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
+  const resizeImage = async (url: string, width: number, height: number) => {
+    const img = new Image();
+    img.src = url;
+
+    await new Promise((resolve) => {
+      img.onload = resolve;
+    });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Failed to create canvas context");
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(img, 0, 0, width, height);
+
+    return canvas.toDataURL("image/jpeg");
+  };
 
   const generateImage = async (prompt: string, retryCount = 0) => {
     if (!prompt || typeof prompt !== "string") {
@@ -122,7 +142,6 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         },
         body: JSON.stringify({ prompt }),
       });
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
 
@@ -148,7 +167,8 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       }
 
       const data = await response.json();
-      return data.image;
+      const imageUrl = await resizeImage(data.image, 1024, 576);
+      return imageUrl;
     } catch (error) {
       if (retryCount < MAX_RETRIES) {
         console.log(`Retrying image generation (attempt ${retryCount + 1})`);

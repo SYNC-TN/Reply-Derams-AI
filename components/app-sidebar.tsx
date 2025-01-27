@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useSidebar } from "@/components/ui/sidebar";
+import Image from "next/image";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "@/app/dreams/Logo";
+import e from "express";
 
 const applicationItems = [
   {
@@ -91,6 +93,21 @@ export function AppSidebar() {
   const menuState = localStorage.getItem("menuState");
 
   useEffect(() => {
+    if (window.location.pathname === "/dreams") {
+      setCurrentPath("/dreams");
+    } else if (window.location.pathname === "/dreams/community") {
+      setCurrentPath("/dreams/community");
+    } else if (window.location.pathname === "/dreams/gallery") {
+      setCurrentPath("/dreams/gallery");
+    } else if (window.location.pathname === "/dreams/billing") {
+      setCurrentPath("/dreams/billing");
+    } else if (window.location.pathname === "/dreams/settings") {
+      setCurrentPath("/dreams/settings");
+    } else if (window.location.pathname === "/dreams/support") {
+      setCurrentPath("/dreams/support");
+    }
+  }, []);
+  useEffect(() => {
     const savedMenuState = localStorage.getItem("menuState");
     if (savedMenuState === "collapsed") {
       setOpen(false);
@@ -104,12 +121,6 @@ export function AppSidebar() {
       setOpen(false);
     }
   });
-  useEffect(() => {
-    // Get the stored path or current path on initial load
-    const storedPath =
-      localStorage.getItem("currentPath") || window.location.pathname;
-    setCurrentPath(storedPath);
-  }, []);
 
   const handleNavigation = (url: string) => {
     setCurrentPath(url);
@@ -129,10 +140,16 @@ export function AppSidebar() {
         <Link href="/">
           <div className="flex flex-col items-center space-x-2">
             <div className="rounded-full overflow-hidden">
-              <img
+              <Image
                 src="/logo.png"
                 className="h-full w-full transition-transform scale-125"
+                width={150}
+                height={150}
                 alt="ReplayDreams Logo"
+                priority
+                quality={90}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHSIeHyMdHSUkISEhJCQkISEkJCYmJiYmJiYoKCoqKCgrKysrKysrKysrKyv/2wBDAR"
               />
             </div>
             <div className="group-data-[collapsible=icon]:hidden">
