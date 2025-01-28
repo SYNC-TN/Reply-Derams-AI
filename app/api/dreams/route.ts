@@ -94,6 +94,7 @@ export async function POST(req: Request) {
     const dreamStoryData = {
       _id: tempId,
       User: user._id,
+      username: session.user.name,
       email: session.user.email,
       url: url,
       name: `Dream: ${truncatedDescription}`,

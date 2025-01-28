@@ -50,7 +50,9 @@ const HeaderBar = ({ setTab }: HeaderBarProps) => {
         modules={[Navigation, Mousewheel]}
         spaceBetween={5}
         slidesPerView="auto"
-        mousewheel={true}
+        mousewheel={{
+          forceToAxis: true,
+        }}
         className="mySwiper"
         keyboard={true}
       >

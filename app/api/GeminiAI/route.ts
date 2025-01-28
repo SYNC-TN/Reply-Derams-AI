@@ -19,16 +19,29 @@ export async function POST(req: Request) {
     const requestBody = await req.json();
     const language = requestBody?.language || "EN";
     const description = requestBody?.description;
+    const bookTone = requestBody?.bookTone || "mysterious";
+    const genre = requestBody?.genre || "fantasy";
+    const storyLength = requestBody?.storyLength || "medium";
+    const perspective = requestBody?.perspective || "first-person";
+    const prompt = `I have a dream story that I want you to organize into a JSON format. Each JSON object should represent a single page of the story. The structure should include:
 
-    const prompt = `I have a dream story that I want you to organize into a JSON format. Each JSON object should represent a single page of the   story. The structure should include:
+    pageNumber: The number of the page.
+    imagePrompt: A short text that describes what the image for this page should depict.
+    text: The story text for this page.
 
-      pageNumber: The number of the page.
-      imagePrompt: A short text that describes what the image for this page should depict.
-      text: The story text for this page.
-      ALSO, use the following language ${language} on the text field only and the imagePrompt field remains in English.
-      ALSO, narrate each page from the first-person perspective, like using 'I' as the subject.
-      Respond ONLY with the JSON array, no additional text or markdown formatting.
-      Dream Description: ${description}`;
+    Please follow these specific requirements:
+    - Use ${language} language for the text field only, while keeping imagePrompt in English
+    - Narrate from ${perspective} perspective point of view
+    - Set the tone as ${bookTone}
+    - Follow the ${genre} dream theme
+    - 
+    - Create a ${storyLength} story length
+    - Maintain a consistent ${bookTone} atmosphere throughout the story
+    - Ensure the imagery and descriptions match the ${genre} theme
+    
+    Respond ONLY with the JSON array, no additional text or markdown formatting.
+    
+    Dream Description: ${description}`;
 
     if (!prompt) {
       return NextResponse.json(

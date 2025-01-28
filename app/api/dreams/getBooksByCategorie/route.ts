@@ -36,6 +36,7 @@ export async function GET(request: Request) {
     const dreamModified = dreams.map((dream) => {
       return {
         User: dream.User,
+        username: dream.username,
         url: dream.url,
         name: dream.name,
         title: dream.title,

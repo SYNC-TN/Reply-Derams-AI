@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Moon, Sparkles, BookOpen, Camera, Share, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+
 import GenreShowcase from "./GenreShowcase";
 import Link from "next/link";
 import {

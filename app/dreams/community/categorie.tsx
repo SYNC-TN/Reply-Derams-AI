@@ -109,7 +109,7 @@ const Categorie = memo(({ BooksTitle, Tab }: BooksCategorie) => {
     }
 
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-md:gap-20 ">
         {isLoading
           ? Array.from({ length: 8 }).map((_, i) => (
               <div key={`skeleton-${i}`} className="flex justify-center">
@@ -129,11 +129,21 @@ const Categorie = memo(({ BooksTitle, Tab }: BooksCategorie) => {
   };
 
   return (
-    <div ref={ref} className="w-full max-w-6xl mx-auto px-2">
-      {selectedBooks.length > 0 && (
-        <h1 className="px-2 mb-4 text-xl font-semibold">{BooksTitle}</h1>
-      )}
-      {renderContent()}
+    <div
+      className={
+        selectedBooks.length === 0 && !isLoading
+          ? "hidden w-0 h-0"
+          : "min-h-[400px]"
+      }
+    >
+      <div ref={ref} className="w-full max-w-6xl mx-auto px-2">
+        <h1 className="px-2 mb-4 text-xl font-semibold h-8">{BooksTitle}</h1>
+        <div className="min-h-[300px]">
+          {" "}
+          {/* Add minimum height container */}
+          {renderContent()}
+        </div>
+      </div>
     </div>
   );
 });

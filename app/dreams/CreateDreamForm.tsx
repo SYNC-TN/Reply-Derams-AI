@@ -133,6 +133,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
     }
 
     try {
+      // First, generate the image using Stability AI
       const response = await fetch("/api/stabilityAI/" + artStyle, {
         method: "POST",
         headers: {
@@ -142,39 +143,39 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         },
         body: JSON.stringify({ prompt }),
       });
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-
-        // If rate limited, wait and retry
-        if (response.status === 429) {
-          const retryAfter = errorData?.retryAfter || 60; // Default to 60 seconds if no retry-after header
-          if (retryCount < MAX_RETRIES) {
-            console.log(
-              `Rate limited, retrying in ${retryAfter}s (attempt ${
-                retryCount + 1
-              }/${MAX_RETRIES})`
-            );
-            await new Promise((resolve) =>
-              setTimeout(resolve, retryAfter * 1000)
-            );
-            return generateImage(prompt, retryCount + 1);
-          }
+        if (response.status === 429 && retryCount < MAX_RETRIES) {
+          const retryAfter = errorData?.retryAfter || 60;
+          await delay(retryAfter * 1000);
+          return generateImage(prompt, retryCount + 1);
         }
-
         throw new Error(
           `Failed to generate image: ${errorData?.error || response.statusText}`
         );
       }
 
       const data = await response.json();
-      const imageUrl = await resizeImage(data.image, 1024, 576);
-      return imageUrl;
+
+      // Then, upload the generated image to Cloudinary
+      const cloudinaryResponse = await fetch("/api/dreams/images", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image: data.image }),
+      });
+
+      if (!cloudinaryResponse.ok) {
+        throw new Error("Failed to upload image to Cloudinary");
+      }
+
+      const cloudinaryData = await cloudinaryResponse.json();
+      return cloudinaryData.url;
     } catch (error) {
       if (retryCount < MAX_RETRIES) {
-        console.log(`Retrying image generation (attempt ${retryCount + 1})`);
-        await new Promise((resolve) =>
-          setTimeout(resolve, RATE_LIMIT_DELAY * (retryCount + 1))
-        );
+        await delay(RATE_LIMIT_DELAY * (retryCount + 1));
         return generateImage(prompt, retryCount + 1);
       }
       throw error;

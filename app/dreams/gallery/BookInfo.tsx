@@ -37,9 +37,13 @@ const BookInfo: React.FC<BookInfoProps> = ({
               <Image
                 src={cover || "/api/placeholder/192/230"}
                 alt={title}
+                layout="responsive"
+                priority
                 width={208}
                 height={288}
+                placeholder="blur"
                 className="w-full h-full object-cover"
+                blurDataURL={`data:image/svg+xml;base64,...`}
               />
             </div>
             {/* Book info */}

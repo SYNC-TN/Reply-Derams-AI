@@ -49,17 +49,24 @@ const ListTitles = [
 
 const AllCategories = memo(() => {
   const [selectedTab, setSelectedTab] = useState<string>("All");
-
   const categoriesToRender = selectedTab === "All" ? ListTitles : [selectedTab];
 
   return (
-    <div className="flex flex-col space-y-8 w-full">
-      <HeaderBar setTab={setSelectedTab} />
-      {categoriesToRender.map((title, index) => (
-        <div key={`${title}-${index}`} className="space-y-4">
-          <Categorie BooksTitle={title} Tab={selectedTab} />
-        </div>
-      ))}
+    <div className="flex flex-col space-y-8 w-full min-h-screen">
+      <div className="h-16">
+        {" "}
+        {/* Fixed height for header */}
+        <HeaderBar setTab={setSelectedTab} />
+      </div>
+      <div className="space-y-8">
+        {" "}
+        {/* Consistent spacing */}
+        {categoriesToRender.map((title, index) => (
+          <div key={`${title}-${index}`}>
+            <Categorie BooksTitle={title} Tab={selectedTab} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 });

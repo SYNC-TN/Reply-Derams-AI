@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import "./BookPage.css";
+import { RotateCcwSquare, ArrowUpDown, ArrowLeftRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 interface BookPageProps {
   text: string;
   imageUrl: string;
@@ -18,6 +20,9 @@ const BookPage: React.FC<BookPageProps> = ({
   isMobile,
 }) => {
   const [hoverState, setHoverState] = useState(0);
+  const [flipState, setFlipState] = useState(
+    localStorage.getItem("flipState") === "true"
+  );
 
   // Enhanced page styles with depth effect
   const pageStyles = {
@@ -30,6 +35,13 @@ const BookPage: React.FC<BookPageProps> = ({
 
   // Dynamic shadow based on page position
   const shadowIntensity = Math.abs((pageNumber / totalPages - 0.5) * 2);
+  useEffect(() => {
+    setFlipState(localStorage.getItem("flipState") === "true");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("flipState", flipState.toString());
+  }, [flipState]);
 
   return (
     <motion.div
@@ -53,11 +65,23 @@ const BookPage: React.FC<BookPageProps> = ({
     >
       {/* Main container */}
       <div className="relative w-full h-full bg-[#f5e6d3] rounded-lg shadow-2xl overflow-hidden page">
+        <Button
+          className="absolute top-0 right-2 z-50 w-9 h-9 "
+          onClick={() => setFlipState(!flipState)}
+        >
+          {flipState ? <ArrowUpDown size={24} /> : <ArrowLeftRight size={24} />}
+        </Button>
         {/* Page texture */}
         <div className="absolute inset-0 page opacity-15 mix-blend-multiply pointer-events-none" />
 
         {/* Content container */}
-        <div className="absolute inset-0 flex flex-row w-full h-full p-4 md:p-8">
+        <div
+          className={
+            flipState === false
+              ? "absolute inset-0 flex flex-row w-full h-full p-4 md:p-8"
+              : "absolute inset-0 flex flex-col w-full h-full p-4 md:p-8"
+          }
+        >
           {/* Text section */}
           <div className="relative flex-1 h-full flex items-center ">
             <motion.div

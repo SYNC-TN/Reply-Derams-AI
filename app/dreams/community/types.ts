@@ -1,7 +1,6 @@
 interface Stats {
   likes?: number;
   views?: number;
-  shares?: number;
 }
 
 export interface BooksCategorie {
@@ -18,6 +17,7 @@ export interface Author {
 export interface CommunityBookProps {
   title: string;
   subtitle: string;
+  username: string;
   url: string;
   coverData: {
     coverImageUrl: string;

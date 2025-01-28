@@ -18,6 +18,7 @@ interface SwiperComponentProps {
 
 const breakpoints = {
   320: { slidesPerView: 1.2, spaceBetween: 10 },
+
   640: { slidesPerView: 2.2, spaceBetween: 10 },
   768: { slidesPerView: 2.5, spaceBetween: 10 },
   1024: { slidesPerView: 3.2, spaceBetween: 10 },
@@ -27,38 +28,46 @@ const breakpoints = {
 const SwiperComponent = memo(
   ({ books, isLoading, onReachEnd }: SwiperComponentProps) => {
     return (
-      <Swiper
-        modules={[Autoplay, Pagination, Navigation, Mousewheel]}
-        spaceBetween={10}
-        navigation={true}
-        mousewheel={true}
-        keyboard={true}
-        breakpoints={breakpoints}
-        onReachEnd={onReachEnd}
-        autoplay={{
-          delay: 8000,
-          disableOnInteraction: true,
-        }}
-        className="mySwiper"
-      >
-        {isLoading
-          ? Array.from({ length: 4 }).map((_, i) => (
-              <SwiperSlide
-                key={`skeleton-${i}`}
-                className="flex justify-center"
-              >
-                <Skeleton className="h-72 w-52 rounded-xl" />
-              </SwiperSlide>
-            ))
-          : books.map((book, index) => (
-              <SwiperSlide
-                key={`${book.title}-${index}`}
-                className="flex justify-center"
-              >
-                <CommunityBookInfo {...book} />
-              </SwiperSlide>
-            ))}
-      </Swiper>
+      <div className="min-h-[300px]">
+        <Swiper
+          modules={[Autoplay, Pagination, Navigation, Mousewheel]}
+          spaceBetween={10}
+          navigation={true}
+          mousewheel={{
+            forceToAxis: true,
+          }}
+          keyboard={true}
+          breakpoints={breakpoints}
+          onReachEnd={onReachEnd}
+          autoplay={{
+            delay: 8000,
+            disableOnInteraction: true,
+          }}
+          className="mySwiper h-[300px]"
+        >
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <SwiperSlide
+                  key={`skeleton-${i}`}
+                  className="flex justify-center items-center h-full"
+                >
+                  <div className="h-72 w-52">
+                    <Skeleton className="h-full w-full rounded-xl" />
+                  </div>
+                </SwiperSlide>
+              ))
+            : books.map((book, index) => (
+                <SwiperSlide
+                  key={`${book.title}-${index}`}
+                  className="flex justify-center items-center h-full"
+                >
+                  <div className="h-72 w-52">
+                    <CommunityBookInfo {...book} />
+                  </div>
+                </SwiperSlide>
+              ))}
+        </Swiper>
+      </div>
     );
   }
 );

@@ -14,6 +14,7 @@ const defaultAuthor: Author = {
 const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   title,
   subtitle,
+  username,
   url,
   stats,
   coverData,
@@ -38,7 +39,7 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
             {/* Author info at the top */}
             <div className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10">
               <div className="flex items-center gap-2">
-                <Avatar className="w-6 h-6">
+                <Avatar className="w-8 h-8 hover:scale-125 transition-transform">
                   <AvatarImage src={authorData.avatar} />
                   <AvatarFallback>
                     <User className="w-4 h-4" />
@@ -46,7 +47,7 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-slate-200 truncate">
-                    {authorData.name}
+                    {username}
                   </p>
                   <p className="text-xs text-slate-400 truncate">
                     @{authorData.username}
@@ -56,13 +57,17 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
             </div>
 
             {/* Cover image */}
-            <div className="w-full h-4/5 overflow-hidden rounded-tr-lg">
+            <div className="w-full h-full overflow-hidden rounded-xl">
               <Image
-                src={coverData.coverImageUrl || "/defaultCover.png"}
+                src={coverData.coverImageUrl}
                 alt={title}
                 width={208}
                 height={288}
+                layout="responsive"
+                priority
                 className="w-full h-full object-cover"
+                placeholder="blur"
+                blurDataURL={`data:image/svg+xml;base64,...`} // Add a blur placeholder
               />
             </div>
 
@@ -86,12 +91,6 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                     <div className="flex items-center gap-1 text-slate-400">
                       <Eye className="w-3 h-3" />
                       <span className="text-xs">{stats.views}</span>
-                    </div>
-                  )}
-                  {stats?.shares !== undefined && (
-                    <div className="flex items-center gap-1 text-slate-400">
-                      <Share2 className="w-3 h-3" />
-                      <span className="text-xs">{stats.shares}</span>
                     </div>
                   )}
                 </div>
