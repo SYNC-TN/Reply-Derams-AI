@@ -40,7 +40,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "@/app/dreams/Logo";
-import e from "express";
+
+import { usePathname } from "next/navigation";
 
 const applicationItems = [
   {
@@ -80,6 +81,8 @@ const optionItems = [
 
 export function AppSidebar() {
   const { data: session } = useSession();
+  const pathname = usePathname();
+
   const [currentPath, setCurrentPath] = useState("");
   const {
     state,
@@ -93,20 +96,10 @@ export function AppSidebar() {
   const menuState = localStorage.getItem("menuState");
 
   useEffect(() => {
-    if (window.location.pathname === "/dreams") {
-      setCurrentPath("/dreams");
-    } else if (window.location.pathname === "/dreams/community") {
-      setCurrentPath("/dreams/community");
-    } else if (window.location.pathname === "/dreams/gallery") {
-      setCurrentPath("/dreams/gallery");
-    } else if (window.location.pathname === "/dreams/billing") {
-      setCurrentPath("/dreams/billing");
-    } else if (window.location.pathname === "/dreams/settings") {
-      setCurrentPath("/dreams/settings");
-    } else if (window.location.pathname === "/dreams/support") {
-      setCurrentPath("/dreams/support");
-    }
-  }, []);
+    setCurrentPath(pathname);
+    console.log(`Current path is ${pathname}`);
+  }, [pathname]);
+
   useEffect(() => {
     const savedMenuState = localStorage.getItem("menuState");
     if (savedMenuState === "collapsed") {

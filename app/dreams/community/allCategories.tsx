@@ -2,7 +2,8 @@
 import React, { useState, memo } from "react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import SearchBar from "./SearchBar";
+import type { CommunityBookProps } from "./types";
 const HeaderBar = dynamic(() => import("./headerBar"), {
   loading: () => (
     <div className="w-full h-8 bg-slate-800 animate-pulse rounded-md"></div>
@@ -48,11 +49,14 @@ const ListTitles = [
 ] as const;
 
 const AllCategories = memo(() => {
+  const [allBooks, setAllBooks] = useState<CommunityBookProps[]>([]);
+
   const [selectedTab, setSelectedTab] = useState<string>("All");
   const categoriesToRender = selectedTab === "All" ? ListTitles : [selectedTab];
 
   return (
     <div className="flex flex-col space-y-8 w-full min-h-screen">
+      <SearchBar books={allBooks} />
       <div className="h-16">
         {" "}
         {/* Fixed height for header */}
@@ -63,7 +67,11 @@ const AllCategories = memo(() => {
         {/* Consistent spacing */}
         {categoriesToRender.map((title, index) => (
           <div key={`${title}-${index}`}>
-            <Categorie BooksTitle={title} Tab={selectedTab} />
+            <Categorie
+              BooksTitle={title}
+              Tab={selectedTab}
+              allBooks={allBooks}
+            />
           </div>
         ))}
       </div>

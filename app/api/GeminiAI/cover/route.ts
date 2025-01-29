@@ -16,47 +16,52 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const requestBody = await req.json();
-    const language = requestBody?.language || "EN";
+    let language = requestBody?.language || "EN";
+    if (language === "AR") {
+      language = "Arabic";
+    } else if (language === "ES") {
+      language = "Spanish";
+    } else if (language === "FR") {
+      language = "French";
+    } else if (language === "DE") {
+      language = "German";
+    } else if (language === "EN") {
+      language = "English";
+    }
     const description = requestBody?.description;
     const bookTone = requestBody?.bookTone || "mysterious";
     const genre = requestBody?.genre || "fantasy";
     const storyLength = requestBody?.storyLength || "medium";
     const perspective = requestBody?.perspective || "first-person";
-    const prompt = `I want you to create a book cover description in JSON format based on a dream description.
-
-The JSON structure should include:
-  title: A captivating title for the dream story (20 characters max).
-  subtitle: A brief subtitle that adds context (30 characters max).
-  coverImagePrompt: A detailed prompt to generate the cover image that incorporates:
-    - The ${bookTone} tone and atmosphere
-    - The ${genre} dream theme
-    - Dreamlike and surreal imagery fitting the selected mood
-    - Visual elements that reflect the story's emotional journey
-    - A style that matches the ${storyLength} format
-    - the story perspective is ${perspective}
-  mood: The emotional tone should reflect the selected ${bookTone} atmosphere
-  theme: The main theme should align with the chosen ${genre} category
-  dominantColors: An array of 2-3 colors that:
-    - Match the ${bookTone} mood
-    - Complement the ${genre} theme
-    - Create a dreamlike atmosphere
-  fontStyle: Suggested font style that:
-    - Matches the ${bookTone} tone
-    - Complements the ${genre} theme
-    - Maintains readability and impact
-
-Use ${language} for the title, subtitle, theme, and mood fields only. All other fields should be in English.
-ALSO :DONT MAKE THE PROMPT TOO LONG . 
-
-Additional style guidance:
-- Maintain the ${bookTone} atmosphere throughout the design
-- Ensure the imagery reflects the ${genre} dream theme
-- Consider the ${storyLength} format for composition
-- Create a cohesive visual narrative
-
-Respond ONLY with the JSON object, no additional text or markdown formatting.
-
-Dream Description: ${description}`;
+    const prompt = `Create a book cover description in JSON format for this dream, following these strict language rules:
+    - For title, subtitle, theme, and mood: Use ${language} ONLY
+    - For all other fields: Use English ONLY
+    
+    Required JSON structure:
+    {
+      "title": "${language} title ",
+      "subtitle": "${language} subtitle ",
+      "theme": "${language} main theme",
+      "mood": "${language} emotional tone",
+      "coverImagePrompt": "Concise English prompt with:
+        - ${bookTone} atmosphere
+        - ${genre} elements
+        - ${perspective} viewpoint
+        - ${storyLength} format
+        - Dreamlike qualities",
+      "dominantColors": ["2-3 colors matching mood"],
+      "fontStyle": "Font recommendation"
+    }
+    
+    Style requirements:
+    - ${bookTone} tone throughout
+    - ${genre} dream theme
+    - ${storyLength} appropriate
+    - Surreal, dreamlike quality
+    
+    Dream Description: ${description}
+    
+    Respond with ONLY the JSON object. NO additional text.`;
     console.log("Language : ", language);
     if (!prompt) {
       return NextResponse.json(

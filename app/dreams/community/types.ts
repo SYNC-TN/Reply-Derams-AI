@@ -16,11 +16,13 @@ export interface Author {
 
 export interface CommunityBookProps {
   title: string;
-  subtitle: string;
+
   username: string;
   url: string;
   coverData: {
     coverImageUrl: string;
+    title: string;
+    subtitle: string;
   };
   stats: Stats;
   author: Author;

@@ -13,7 +13,6 @@ const defaultAuthor: Author = {
 
 const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   title,
-  subtitle,
   username,
   url,
   stats,
@@ -49,9 +48,6 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                   <p className="text-xs font-medium text-slate-200 truncate">
                     {username}
                   </p>
-                  <p className="text-xs text-slate-400 truncate">
-                    @{authorData.username}
-                  </p>
                 </div>
               </div>
             </div>
@@ -74,9 +70,11 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
             {/* Book info */}
             <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-slate-900 to-slate-900/80">
               <h3 className="text-sm font-semibold text-slate-100 truncate">
-                {title}
+                {coverData.title}
               </h3>
-              <p className="text-xs text-slate-400 mt-1 truncate">{subtitle}</p>
+              <p className="text-xs text-slate-400 mt-1 truncate">
+                {coverData.subtitle}
+              </p>
 
               {/* Stats and date */}
               <div className="flex items-center justify-between mt-2">
