@@ -11,9 +11,11 @@ import BookPage from "./BookPage";
 import useSound from "use-sound";
 import BookNavigation from "./BookNavigation";
 import { set } from "mongoose";
+import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
 
 interface DreamBookContainerProps {
-  book: { pages: { text: string; image: string }[] };
+  book: { pages: { text: string; image: string }[]; share: boolean };
   lang: string;
   currentPage: number;
   onPageChange: (page: number) => void;
@@ -39,6 +41,7 @@ export default function DreamBookContainer({
   const nextPageRef = useRef<number>(currentPage);
   const [language, setLanguage] = useState("en");
   const isFlippingRef = useRef(false);
+
   const StoreReadingStats = localStorage.setItem(
     "isReading",
     autoTurnEnabled.toString()

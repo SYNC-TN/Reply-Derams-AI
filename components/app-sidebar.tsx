@@ -42,6 +42,7 @@ import { useSession, signOut } from "next-auth/react";
 import Logo from "@/app/dreams/Logo";
 
 import { usePathname } from "next/navigation";
+import { set } from "mongoose";
 
 const applicationItems = [
   {
@@ -86,6 +87,7 @@ export function AppSidebar() {
   const [currentPath, setCurrentPath] = useState("");
   const {
     state,
+
     open,
     setOpen,
     openMobile,
@@ -278,6 +280,16 @@ export function AppSidebar() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-[#2a3040]" />
               <DropdownMenuGroup>
+                <Link
+                  href={`/dreams/profile/${session?.user?.name
+                    ?.toLowerCase()
+                    .replace(/\s+/g, "-")}`}
+                >
+                  <DropdownMenuItem className="focus:bg-[#1a2030] text-[#a9c5dd] hover:text-[#fff] cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                </Link>
                 <Link href="/dreams/settings">
                   <DropdownMenuItem className="focus:bg-[#1a2030] text-[#a9c5dd] hover:text-[#fff] cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />

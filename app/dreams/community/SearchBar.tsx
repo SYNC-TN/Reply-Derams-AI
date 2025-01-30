@@ -44,7 +44,7 @@ const SearchBar = ({ books }: SearchBarProps) => {
           size={20}
           className={`absolute left-3 transition-all duration-200 ${
             isFocused
-              ? "text-blue-400"
+              ? "text-blue-400 z-10"
               : "text-gray-400 hover:text-blue-400 cursor-pointer"
           }`}
           onClick={() => !isFocused && setIsFocused(true)}

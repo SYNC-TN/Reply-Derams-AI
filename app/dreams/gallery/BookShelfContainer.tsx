@@ -24,6 +24,7 @@ interface Dream {
   User: string;
   url: string;
   name: string;
+  share: boolean;
   description: string;
   title: string;
   stats: Stats;
@@ -92,6 +93,7 @@ const BookShelfContainer: React.FC = () => {
 
         return uniqueBooks;
       });
+      console.log("Fetched books:", data);
 
       // Check if we've reached the end of books
       setHasMore(data.length > 0);
@@ -220,10 +222,12 @@ const BookShelfContainer: React.FC = () => {
         </Button>
       </div>
       <BookShelf
-        title="Your Dreams"
+        title="My Dreams"
         books={filteredAndSortedBooks.map((dream) => ({
           title: dream.coverData.title,
+          username: dream.User,
           url: dream.url,
+          share: dream.share,
           cover: dream.coverData?.coverImageUrl || "coverDefault.png",
           subtitle: dream.coverData.subtitle,
           stats: {

@@ -120,6 +120,7 @@ const page = () => {
                   Please enter a display name you are comfortable with.
                 </p>
               </div>
+
               <div className="flex flex-col md:flex-row gap-4">
                 <Input
                   className="flex-1 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500"

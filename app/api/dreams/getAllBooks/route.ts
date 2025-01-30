@@ -36,6 +36,7 @@ export async function GET(request: Request) {
         url: dream.url,
         name: dream.name,
         title: dream.title,
+        share: dream.share,
         stats: dream.stats,
         coverData: dream.coverData,
         createdAt: dream.createdAt,

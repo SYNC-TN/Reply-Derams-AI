@@ -16,6 +16,7 @@ interface DreamBook {
   description: string;
   options: { artStyle: string; language: string }[];
   pages: DreamPage[];
+  share: boolean;
   coverData?: {
     coverImagePrompt: string;
     coverImageUrl: string;

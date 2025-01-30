@@ -83,6 +83,7 @@ export const authOptions: NextAuthOptions = {
         if (existingUser) {
           // Update user information if needed
           existingUser.name = user.name;
+          existingUser.profileName = user.name;
           existingUser.image = user.image;
           existingUser.provider = account.provider;
           await existingUser.save();
@@ -94,6 +95,7 @@ export const authOptions: NextAuthOptions = {
         const newUser = await User.create({
           email: user.email,
           name: user.name,
+          profileName: user.name,
           image: user.image,
           provider: account.provider,
           // Generate a secure random password for OAuth users

@@ -47,6 +47,8 @@ export async function POST(request: Request) {
       email: email.toLowerCase(),
       password: hashedPassword,
       name: username.trim(), // Use username as name
+      profileName: username,
+
       provider: "credentials",
       image: "https://i.ibb.co/9TN2nT1/rb-4707.png",
     });
@@ -58,6 +60,7 @@ export async function POST(request: Request) {
         id: user._id.toString(),
         email: user.email,
         name: user.name,
+        profileName: user.profileName,
         image: user.image,
       },
     });

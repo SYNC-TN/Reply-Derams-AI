@@ -17,41 +17,51 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   url,
   stats,
   coverData,
-  author = defaultAuthor, // Provide default value
+  author = defaultAuthor,
   createdAt,
 }) => {
-  // Merge with defaults while maintaining type safety
   const authorData: Author = {
     ...defaultAuthor,
     ...author,
   };
 
-  return (
-    <Link href={url}>
-      <div className="group relative h-72 w-52 max-md:w-44 perspective-1000">
-        <div className="absolute w-full h-full transition-all duration-500 transform-style-preserve-3d group-hover:rotate-y-5 group-hover:translate-x-4 group-hover:translate-y-[-10px] cursor-pointer">
-          {/* Book spine effect */}
-          <div className="absolute left-0 w-6 h-full bg-slate-700 transform origin-left skew-y-12"></div>
+  const profileUrl = `/dreams/profile/${(username || "anonymous")
+    .toLowerCase()
+    .replaceAll(/\s+/g, "-")}`;
 
-          {/* Book cover */}
-          <div className="absolute w-full h-full bg-slate-800 rounded-r-lg shadow-xl">
-            {/* Author info at the top */}
-            <div className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10">
-              <div className="flex items-center gap-2">
-                <Avatar className="w-8 h-8 hover:scale-125 transition-transform">
-                  <AvatarImage src={authorData.avatar} />
-                  <AvatarFallback>
-                    <User className="w-4 h-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-slate-200 truncate">
-                    {username}
-                  </p>
-                </div>
+  return (
+    <div className="group relative h-72 w-52 max-md:w-44 perspective-1000">
+      <div className="absolute w-full h-full transition-all duration-500 transform-style-preserve-3d group-hover:rotate-y-5 group-hover:translate-x-4 group-hover:translate-y-[-10px] cursor-pointer">
+        {/* Book spine effect */}
+        <div className="absolute left-0 w-6 h-full bg-slate-700 transform origin-left skew-y-12"></div>
+
+        {/* Book cover */}
+        <div className="absolute w-full h-full bg-slate-800 rounded-r-lg shadow-xl">
+          {/* Author info at the top */}
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = profileUrl;
+            }}
+            className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10 cursor-pointer hover:bg-slate-900/70 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Avatar className="w-8 h-8 hover:scale-125 transition-transform">
+                <AvatarImage src={authorData.avatar} />
+                <AvatarFallback>
+                  <User className="w-4 h-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-slate-200 truncate">
+                  {username || "anonymous"}
+                </p>
               </div>
             </div>
+          </div>
 
+          <Link href={url} className="block w-full h-full">
             {/* Cover image */}
             <div className="w-full h-full overflow-hidden rounded-xl">
               <Image
@@ -63,7 +73,7 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                 priority
                 className="w-full h-full object-cover"
                 placeholder="blur"
-                blurDataURL={`data:image/svg+xml;base64,...`} // Add a blur placeholder
+                blurDataURL={`data:image/svg+xml;base64,...`}
               />
             </div>
 
@@ -97,10 +107,10 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

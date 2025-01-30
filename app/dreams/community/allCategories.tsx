@@ -6,7 +6,7 @@ import SearchBar from "./SearchBar";
 import type { CommunityBookProps } from "./types";
 const HeaderBar = dynamic(() => import("./headerBar"), {
   loading: () => (
-    <div className="w-full h-8 bg-slate-800 animate-pulse rounded-md"></div>
+    <div className="w-full h-8 bg-slate-800 animate-pulse rounded-md "></div>
   ),
 });
 

@@ -1,12 +1,21 @@
 // models/User.ts
+import { user } from "elevenlabs/api";
 import mongoose from "mongoose";
+import { unique } from "next/dist/build/utils";
 
 const UserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
+      unique: true,
       trim: true,
+    },
+    profileName: {
+      type: String,
+      required: true,
+      lowercase: true,
+      unique: true,
     },
     email: {
       type: String,
@@ -36,5 +45,12 @@ const UserSchema = new mongoose.Schema(
     timestamps: true, // Use mongoose timestamps
   }
 );
+
+UserSchema.pre("save", function (next) {
+  if (this.profileName) {
+    this.profileName = this.profileName.toLowerCase().replaceAll(/\s+/g, "-");
+  }
+  next();
+});
 
 export const User = mongoose.models.User || mongoose.model("User", UserSchema);
