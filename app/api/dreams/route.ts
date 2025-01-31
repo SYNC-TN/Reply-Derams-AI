@@ -157,7 +157,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error creating dream:", error);
     if (error instanceof mongoose.Error.ValidationError) {
-      console.error("Validation error details:", error.errors);
+      console.error("Validation error :", error.errors);
     }
     return NextResponse.json(
       {
