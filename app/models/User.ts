@@ -28,6 +28,21 @@ const UserSchema = new mongoose.Schema(
         id: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
+          required: true,
+        },
+      },
+    ],
+    Following: [
+      {
+        username: {
+          type: String,
+          required: true,
+          unique: true,
+        },
+        id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
         },
       },
     ],

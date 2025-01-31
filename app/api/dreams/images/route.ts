@@ -12,7 +12,7 @@ cloudinary.config({
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { image } = body;
+    const { image, path, width, height } = body;
     console.log("claudinary request");
     if (!image) {
       return NextResponse.json(
@@ -23,12 +23,12 @@ export async function POST(request: Request) {
 
     // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(image, {
-      folder: "ReplayDreamsImages", // Organize images in a folder
+      folder: path, // Organize images in a folder
       resource_type: "image",
       transformation: [
         { quality: "auto" }, // Automatic quality optimization
-        { width: 1024 },
-        { height: 1024 },
+        { width: width },
+        { height: height },
         { fetch_format: "webp" }, // Automatic format optimization
       ],
     });

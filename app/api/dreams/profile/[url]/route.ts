@@ -48,9 +48,11 @@ export async function GET(
     const userData = {
       name: user.name,
       DreamsCount: count,
-
+      FollowersCount: user.Followers.length,
+      FollowingCount: user.Following.length,
       profilePic: user.image || null,
       collection: ModifiedDreams,
+      isOwner: user.email === session?.user.email,
     };
 
     console.log("Found user data:", userData);

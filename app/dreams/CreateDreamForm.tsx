@@ -164,7 +164,12 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ image: data.image }),
+        body: JSON.stringify({
+          image: data.image,
+          path: "ReplayDreamsImages",
+          width: 1024,
+          height: 1024,
+        }),
       });
 
       if (!cloudinaryResponse.ok) {

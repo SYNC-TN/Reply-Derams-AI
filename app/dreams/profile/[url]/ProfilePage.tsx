@@ -1,25 +1,31 @@
-// ProfilePage.tsx
 import React from "react";
 import {
   MoreHorizontal,
   Mail,
   Link as LinkIcon,
   Edit,
+  Book,
+  BookCheck,
   Share2,
   BookOpen,
+  Image,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUp } from "lucide-react";
 import BookShelf from "../../gallery/BookShelf";
-import BookShelfContainer from "../../gallery/BookShelfContainer";
 
 interface ProfilePageProps {
   name?: string;
   userData?: {
     profilePic?: string;
     DreamsCount?: number;
+    FollowersCount?: number;
+    FollowingCount?: number;
+    isOwner?: boolean;
   };
   collection?: any[];
   isLoading?: boolean;
@@ -31,6 +37,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   collection = [],
   isLoading = false,
 }) => {
+  const formatter = new Intl.NumberFormat("en", { notation: "compact" });
+  const [isImageHovered, setIsImageHovered] = React.useState(false);
+  const [image, setImage] = React.useState(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [followStatus, setFollowStatus] = React.useState(false);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0a1929] text-blue-100">
@@ -51,6 +63,66 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     );
   }
 
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const UpdateProfile = async (image: any) => {
+    try {
+      console.log("Starting Cloudinary upload...");
+      const cloudinaryResponse = await fetch("/api/dreams/images", {
+        method: "POST",
+        body: JSON.stringify({
+          image: image,
+          path: "ProfileImages",
+          width: 320,
+          height: 320,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!cloudinaryResponse.ok) {
+        const errorData = await cloudinaryResponse.json();
+        console.error("Cloudinary upload failed:", errorData);
+        throw new Error(
+          `Cloudinary upload failed: ${errorData.error || "Unknown error"}`
+        );
+      }
+
+      const cloudinaryData = await cloudinaryResponse.json();
+      console.log("Cloudinary upload successful:", cloudinaryData);
+
+      const profileResponse = await fetch("/api/dreams/profile/updatePFP", {
+        method: "POST",
+        body: JSON.stringify(cloudinaryData.url),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const profileData = await profileResponse.json();
+
+      if (!profileResponse.ok) {
+        console.error("Profile update failed:", profileData);
+        throw new Error(
+          `Profile update failed: ${profileData.error || "Unknown error"}`
+        );
+      }
+
+      console.log("Profile update successful:", profileData);
+      setImage(cloudinaryData.url);
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Detailed error:", error);
+      throw error;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a1929] text-blue-100">
       {/* Profile Header */}
@@ -58,20 +130,64 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         {/* Cover Image */}
         <div className="h-48 w-full bg-gradient-to-r from-blue-900 to-purple-900">
           <div className="absolute inset-0 bg-black/20" />
+          <img
+            src={
+              "https://t3.ftcdn.net/jpg/04/67/96/14/360_F_467961418_UnS1ZAwAqbvVVMKExxqUNi0MUFTEJI83.jpg"
+            }
+            className="object-cover w-full h-full"
+          />
         </div>
 
         {/* Profile Info Section */}
         <div className="max-w-6xl mx-auto px-4">
           <div className="relative -mt-24 sm:flex sm:items-end sm:space-x-5 pb-4">
-            <div className="relative">
-              <Avatar className="w-32 h-32 rounded-full ring-4 ring-[#0a1929]">
-                <AvatarImage src={userData?.profilePic} />
+            <div
+              className="relative group"
+              onMouseEnter={() => setIsImageHovered(true)}
+              onMouseLeave={() => setIsImageHovered(false)}
+            >
+              {/* Hidden file input */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  console.log("File selected:", file);
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      UpdateProfile(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+
+              <Avatar
+                className="w-32 h-32 rounded-full ring-4 ring-[#0a1929] relative"
+                onClick={userData?.isOwner ? triggerFileInput : undefined}
+              >
+                {userData?.isOwner && (
+                  <div
+                    className={`absolute inset-0 bg-black/50 flex items-center justify-center 
+                      opacity-0 group-hover:opacity-100 
+                      cursor-pointer transition-opacity duration-200 
+                      ${isImageHovered ? "opacity-100" : ""}`}
+                  >
+                    <ImageUp className="w-[30%] h-[30%] text-white" />
+                  </div>
+                )}
+
+                <AvatarImage src={userData?.profilePic || image || undefined} />
+
                 <AvatarFallback className="bg-blue-800">
                   {name ? name.slice(0, 2).toUpperCase() : "??"}
                 </AvatarFallback>
               </Avatar>
             </div>
 
+            {/* Rest of the component remains the same */}
             <div className="mt-6 sm:mt-16 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
               <div className="sm:min-w-0 flex-1">
                 <h1 className="text-2xl font-bold truncate">{name}</h1>
@@ -79,16 +195,44 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               </div>
 
               <div className="mt-6 flex flex-col sm:flex-row sm:mt-0 sm:space-x-3">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Edit size={16} />
-                  Edit Profile
-                </Button>
+                {userData?.isOwner ? (
+                  <Link href={`/dreams/settings`}>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 
+                              bg-gradient-to-r from-blue-700 to-blue-800 
+                              text-white 
+                              hover:from-blue-800 hover:to-blue-900 
+                              transition-all duration-300 
+                              border-transparent 
+                              shadow-md 
+                              hover:shadow-lg 
+                              focus:ring-2 
+                              focus:ring-blue-500 
+                              focus:ring-opacity-50"
+                    >
+                      <Edit size={16} />
+                      Edit Profile
+                    </Button>
+                  </Link>
+                ) : null}
                 <Button
                   variant="outline"
-                  className="mt-2 sm:mt-0 flex items-center gap-2"
+                  onClick={() => setFollowStatus(!followStatus)}
+                  className="flex items-center gap-2 
+                      bg-gradient-to-r from-blue-700 to-blue-800 
+                      text-white 
+                      hover:from-blue-800 hover:to-blue-900 
+                      transition-all duration-300 
+                      border-transparent 
+                      shadow-md 
+                      hover:shadow-lg 
+                      focus:ring-2 
+                      focus:ring-blue-500 
+                      focus:ring-opacity-50"
                 >
-                  <Share2 size={16} />
-                  Share
+                  {!followStatus ? <Book size={16} /> : <BookCheck size={16} />}
+                  Follow
                 </Button>
               </div>
             </div>
@@ -103,11 +247,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               <span className="text-blue-400 text-sm">Dreams</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="font-semibold text-xl">1.2k</span>
+              <span className="font-semibold text-xl">
+                {formatter.format(userData?.FollowersCount as number)}
+              </span>
               <span className="text-blue-400 text-sm">Followers</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="font-semibold text-xl">450</span>
+              <span className="font-semibold text-xl">
+                {formatter.format(userData?.FollowingCount as number)}
+              </span>
               <span className="text-blue-400 text-sm">Following</span>
             </div>
           </div>
@@ -154,18 +302,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 Dream creator passionate about storytelling and visual arts.
                 Joined Replay Dreams to share my imagination with the world.
               </p>
-              <div className="mt-6 space-y-3">
-                <div className="flex items-center gap-2 text-blue-400">
-                  <Mail size={16} />
-                  <span>{name}@example.com</span>
-                </div>
-                <div className="flex items-center gap-2 text-blue-400">
-                  <LinkIcon size={16} />
-                  <a href="#" className="hover:text-blue-300">
-                    portfolio.example.com
-                  </a>
-                </div>
-              </div>
+              <div className="mt-6 space-y-3"></div>
             </div>
           </TabsContent>
         </Tabs>
