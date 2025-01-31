@@ -40,7 +40,7 @@ const Categorie = memo(
         try {
           const response = await fetch(
             `/api/dreams/getBooksByCategorie?page=${currentPage}&limit=${
-              Tab === "All" ? 4 : 20
+              Tab === "All" ? 5 : 20
             }&categorie=${Tab === "All" ? BooksTitle : Tab}`,
             {
               next: { revalidate: 3600 },

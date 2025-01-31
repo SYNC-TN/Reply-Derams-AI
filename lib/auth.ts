@@ -85,11 +85,6 @@ export const authOptions: NextAuthOptions = {
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
-          existingUser.name = user.name;
-          existingUser.profileName = user.name;
-          existingUser.image = user.image;
-          existingUser.provider = account.provider;
-          await existingUser.save();
           return true;
         }
 

@@ -38,9 +38,9 @@ export async function GET(request: Request) {
       { $limit: limit },
       {
         $lookup: {
-          from: "users", // Make sure this matches your User collection name
-          localField: "username",
-          foreignField: "name",
+          from: "users",
+          localField: "email",
+          foreignField: "email",
           as: "userDetails",
         },
       },

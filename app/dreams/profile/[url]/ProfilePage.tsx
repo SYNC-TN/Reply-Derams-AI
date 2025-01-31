@@ -9,7 +9,7 @@ import {
   Share2,
   BookOpen,
   Image,
-  Wallpaper,
+  Camera,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
             <Skeleton className="w-32 h-32 rounded-full" />
             <Skeleton className="h-8 w-48 mt-4" />
           </div>
-          <div className="relative mt-4 border-t border-blue-900/30 pt-4 space-y-4">
+          <div className="relative mt-4 border-t border-blue-900/30 pt-4 space-y-4 ">
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-[75%]" />
@@ -155,16 +155,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         <div className="h-48 w-full bg-gradient-to-r from-blue-900 to-purple-900">
           {userData?.isOwner && (
             <div
-              className={`absolute w-28 h-28 cursor-pointer transition-opacity duration-200 top-5 right-0 z-50
+              className={`absolute w-10 h-10 cursor-pointer transition-opacity duration-200 top-5 right-4  z-50
                     `}
               onClick={userData?.isOwner ? triggerFileInputBanner : undefined}
             >
-              <Wallpaper className="w-[30%] h-[30%] text-white opacity-70 hover:opacity-100" />
+              <Camera className="w-full h-full text-white opacity-70 hover:opacity-100" />
             </div>
           )}
           <input
             type="file"
             ref={fileInputRefBanner}
+            accept="image/*"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -200,6 +201,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               <input
                 type="file"
                 ref={fileInputRef}
+                accept="image/*"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
