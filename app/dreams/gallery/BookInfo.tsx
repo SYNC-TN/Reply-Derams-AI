@@ -230,7 +230,7 @@ const BookInfo: React.FC<BookInfoProps> = ({
                 </DialogContent>
               </Dialog>
             ) : null}
-            <Link href={url}>
+            <Link href={"/dreams/" + url}>
               {/* Book spine effect */}
               <div className="absolute left-0 w-6 h-full bg-slate-700 transform origin-left skew-y-12"></div>
               {/* Book cover */}

@@ -6,6 +6,7 @@ import { DreamStory } from "@/app/models/DreamStory";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { decodeEmail } from "@/lib/jwt";
+import { profile } from "console";
 // Removed unnecessary import
 export async function GET(
   request: Request,
@@ -23,7 +24,7 @@ export async function GET(
 
     const user = await User.findOne({ profileName: params.url });
     const dreams = await DreamStory.find({
-      email: token,
+      email: user.email,
       share: true,
     });
     if (!user) {
@@ -51,6 +52,7 @@ export async function GET(
       FollowersCount: user.Followers.length,
       FollowingCount: user.Following.length,
       profilePic: user.image || null,
+      profileBanner: user.banner || null,
       collection: ModifiedDreams,
       isOwner: user.email === session?.user.email,
     };

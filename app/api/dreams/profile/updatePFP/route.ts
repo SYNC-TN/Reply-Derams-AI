@@ -13,6 +13,8 @@ export async function POST(request: Request) {
 
     await connectDB();
     const body = await request.json();
+    const { url, path } = body;
+    const updateVar = path === "ProfileImages" ? "image" : "banner";
 
     if (!body) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
@@ -22,7 +24,7 @@ export async function POST(request: Request) {
 
     const result = await User.findOneAndUpdate(
       { email: userEmail },
-      { $set: { image: body } },
+      { $set: { [updateVar]: url } },
       { new: true }
     );
 

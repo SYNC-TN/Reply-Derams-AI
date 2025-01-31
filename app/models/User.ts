@@ -70,6 +70,12 @@ const UserSchema = new mongoose.Schema(
       default:
         "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?t=st=1737843955~exp=1737847555~hmac=47968cdf3a6e5b75617ea517be7e07e28789dd2052540707470c583ad0757fb8&w=740",
     },
+    banner: {
+      type: String,
+      trim: true,
+      default:
+        "https://t3.ftcdn.net/jpg/04/67/96/14/360_F_467961418_UnS1ZAwAqbvVVMKExxqUNi0MUFTEJI83.jpg",
+    },
   },
   {
     timestamps: true, // Use mongoose timestamps

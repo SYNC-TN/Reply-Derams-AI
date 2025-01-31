@@ -9,6 +9,7 @@ import {
   Share2,
   BookOpen,
   Image,
+  Wallpaper,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ interface ProfilePageProps {
   name?: string;
   userData?: {
     profilePic?: string;
+    profileBanner?: string;
     DreamsCount?: number;
     FollowersCount?: number;
     FollowingCount?: number;
@@ -41,7 +43,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const [isImageHovered, setIsImageHovered] = React.useState(false);
   const [image, setImage] = React.useState(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRefBanner = React.useRef<HTMLInputElement>(null);
   const [followStatus, setFollowStatus] = React.useState(false);
+  const [profilePicLoading, setProfilePicLoading] = React.useState(false);
 
   if (isLoading) {
     return (
@@ -68,17 +72,28 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       fileInputRef.current.click();
     }
   };
+  const triggerFileInputBanner = () => {
+    if (fileInputRefBanner.current) {
+      fileInputRefBanner.current.click();
+    }
+  };
 
-  const UpdateProfile = async (image: any) => {
+  const UpdateProfile = async (
+    image: any,
+    path: string,
+    width: number,
+    height: number
+  ) => {
     try {
+      setProfilePicLoading(true);
       console.log("Starting Cloudinary upload...");
       const cloudinaryResponse = await fetch("/api/dreams/images", {
         method: "POST",
         body: JSON.stringify({
           image: image,
-          path: "ProfileImages",
-          width: 320,
-          height: 320,
+          path: path,
+          width: width,
+          height: height,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +113,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
       const profileResponse = await fetch("/api/dreams/profile/updatePFP", {
         method: "POST",
-        body: JSON.stringify(cloudinaryData.url),
+        body: JSON.stringify({ url: cloudinaryData.url, path: path }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -120,7 +135,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     } catch (error) {
       console.error("Detailed error:", error);
       throw error;
+    } finally {
+      setProfilePicLoading(false);
     }
+  };
+  const LoadingProfilePic = () => {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="animate-spin border-1 w-16 h-16 border-4 border-t-transparent border-blue-500 rounded-full"></div>
+      </div>
+    );
   };
 
   return (
@@ -129,9 +153,35 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       <div className="relative">
         {/* Cover Image */}
         <div className="h-48 w-full bg-gradient-to-r from-blue-900 to-purple-900">
+          {userData?.isOwner && (
+            <div
+              className={`absolute w-28 h-28 cursor-pointer transition-opacity duration-200 top-5 right-0 z-50
+                    `}
+              onClick={userData?.isOwner ? triggerFileInputBanner : undefined}
+            >
+              <Wallpaper className="w-[30%] h-[30%] text-white opacity-70 hover:opacity-100" />
+            </div>
+          )}
+          <input
+            type="file"
+            ref={fileInputRefBanner}
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              console.log("File selected:", file);
+              if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  UpdateProfile(reader.result, "BannerImages", 970, 250);
+                };
+                reader.readAsDataURL(file);
+              }
+            }}
+          />
           <div className="absolute inset-0 bg-black/20" />
           <img
             src={
+              userData?.profileBanner ||
               "https://t3.ftcdn.net/jpg/04/67/96/14/360_F_467961418_UnS1ZAwAqbvVVMKExxqUNi0MUFTEJI83.jpg"
             }
             className="object-cover w-full h-full"
@@ -157,7 +207,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                   if (file) {
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                      UpdateProfile(reader.result);
+                      UpdateProfile(reader.result, "ProfileImages", 320, 320);
                     };
                     reader.readAsDataURL(file);
                   }
@@ -178,6 +228,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     <ImageUp className="w-[30%] h-[30%] text-white" />
                   </div>
                 )}
+                {profilePicLoading ? <LoadingProfilePic /> : null}
 
                 <AvatarImage src={userData?.profilePic || image || undefined} />
 
@@ -216,10 +267,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     </Button>
                   </Link>
                 ) : null}
-                <Button
-                  variant="outline"
-                  onClick={() => setFollowStatus(!followStatus)}
-                  className="flex items-center gap-2 
+                {!userData?.isOwner ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setFollowStatus(!followStatus)}
+                    className="flex items-center gap-2 
                       bg-gradient-to-r from-blue-700 to-blue-800 
                       text-white 
                       hover:from-blue-800 hover:to-blue-900 
@@ -230,10 +282,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                       focus:ring-2 
                       focus:ring-blue-500 
                       focus:ring-opacity-50"
-                >
-                  {!followStatus ? <Book size={16} /> : <BookCheck size={16} />}
-                  Follow
-                </Button>
+                  >
+                    {!followStatus ? (
+                      <Book size={16} />
+                    ) : (
+                      <BookCheck size={16} />
+                    )}
+                    {followStatus ? "Following" : "Follow"}
+                  </Button>
+                ) : null}
               </div>
             </div>
           </div>

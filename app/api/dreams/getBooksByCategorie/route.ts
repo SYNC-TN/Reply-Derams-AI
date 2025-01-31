@@ -1,9 +1,8 @@
-//getBooksByCategorie.ts
-
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
+import { User } from "@/app/models/User";
 import { authOptions } from "@/lib/auth";
 
 export async function GET(request: Request) {
@@ -22,32 +21,53 @@ export async function GET(request: Request) {
 
     const skip = (page - 1) * limit;
 
-    let dreams = await DreamStory.find({
-      share: true,
-      $or: [
-        { "Tags.name": categorie },
-        { "Tags.value": categorie },
-        { "Tags.label": categorie },
-      ],
-    })
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }); // Sort by most recent first
-    const dreamModified = dreams.map((dream) => {
-      return {
-        User: dream.User,
-        username: dream.username,
-        url: dream.url,
-        name: dream.name,
-        title: dream.title,
-        stats: dream.stats,
-        coverData: dream.coverData,
-        createdAt: dream.createdAt,
-        updatedAt: dream.updatedAt,
-        __v: dream.__v,
-      };
-    });
-    return NextResponse.json(dreamModified);
+    // Fetch dreams with user lookup in a single query
+    const dreamResults = await DreamStory.aggregate([
+      {
+        $match: {
+          share: true,
+          $or: [
+            { "Tags.name": categorie },
+            { "Tags.value": categorie },
+            { "Tags.label": categorie },
+          ],
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users", // Make sure this matches your User collection name
+          localField: "username",
+          foreignField: "name",
+          as: "userDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          User: 1,
+          profilePic: "$userDetails.image",
+          username: 1,
+          url: 1,
+          name: 1,
+          title: 1,
+          stats: 1,
+          coverData: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          __v: 1,
+        },
+      },
+    ]);
+
+    return NextResponse.json(dreamResults);
   } catch (error) {
     console.error("Error details:", error);
     return NextResponse.json(

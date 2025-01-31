@@ -10,6 +10,7 @@ import { useEffect } from "react";
 interface UserData {
   name: string;
   profilePic: string;
+  profileBanner: string;
   FollowersCount: number;
   FollowingCount: number;
   isOwner: boolean;
@@ -75,6 +76,7 @@ const ProfileContainer = () => {
       name={userData?.name}
       userData={{
         profilePic: userData?.profilePic,
+        profileBanner: userData?.profileBanner,
         DreamsCount: userData?.DreamsCount,
         FollowersCount: userData?.FollowersCount,
         FollowingCount: userData?.FollowingCount,

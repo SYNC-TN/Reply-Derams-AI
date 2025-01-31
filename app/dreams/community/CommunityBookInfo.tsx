@@ -14,6 +14,7 @@ const defaultAuthor: Author = {
 const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   title,
   username,
+  profilePic,
   url,
   stats,
   coverData,
@@ -44,17 +45,17 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
               e.stopPropagation();
               window.location.href = profileUrl;
             }}
-            className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10 cursor-pointer hover:bg-slate-900/70 transition-colors"
+            className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10 cursor-pointer hover:bg-slate-900/70   transition-colors "
           >
             <div className="flex items-center gap-2">
               <Avatar className="w-8 h-8 hover:scale-125 transition-transform">
-                <AvatarImage src={authorData.avatar} />
+                <AvatarImage src={profilePic} />
                 <AvatarFallback>
                   <User className="w-4 h-4" />
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-200 truncate">
+                <p className="text-xs font-medium text-slate-200 truncate hover:text-sky-600">
                   {username || "anonymous"}
                 </p>
               </div>

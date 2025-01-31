@@ -16,7 +16,7 @@ export interface Author {
 
 export interface CommunityBookProps {
   title: string;
-
+  profilePic?: string;
   username: string;
   url: string;
   coverData: {
