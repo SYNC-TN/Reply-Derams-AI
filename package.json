@@ -38,6 +38,7 @@
     "elevenlabs": "^1.50.2",
     "framer-motion": "^11.17.0",
     "gtts": "^0.2.1",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.471.0",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.4",
@@ -64,6 +65,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

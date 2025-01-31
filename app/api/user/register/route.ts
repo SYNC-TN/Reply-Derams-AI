@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import connectDB from "@/lib/mongodb";
 import { User } from "@/app/models/User";
+import { encodeEmail, decodeEmail } from "@/lib/jwt";
 
 export async function POST(request: Request) {
   try {

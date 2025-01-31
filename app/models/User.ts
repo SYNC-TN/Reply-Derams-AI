@@ -2,6 +2,7 @@
 import { user } from "elevenlabs/api";
 import mongoose from "mongoose";
 import { unique } from "next/dist/build/utils";
+import { type } from "os";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -17,6 +18,20 @@ const UserSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,
     },
+    Followers: [
+      {
+        username: {
+          type: String,
+          required: true,
+          unique: true,
+        },
+        id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      },
+    ],
+
     email: {
       type: String,
       required: true,

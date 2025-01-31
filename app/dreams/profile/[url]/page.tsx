@@ -11,14 +11,16 @@ interface UserData {
   name: string;
   profilePic: string;
   collection: any[];
+  DreamsCount: number;
 }
 
 const ProfileContainer = () => {
+  const { data: session } = useSession();
   const params = useParams<{ url: string }>();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { data: session } = useSession();
+  console.log("data session is", session);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -70,6 +72,7 @@ const ProfileContainer = () => {
       name={userData?.name}
       userData={{
         profilePic: userData?.profilePic,
+        DreamsCount: userData?.DreamsCount,
       }}
       isLoading={isLoading}
       collection={userData?.collection}

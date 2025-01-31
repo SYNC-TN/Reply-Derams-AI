@@ -13,11 +13,13 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import BookShelf from "../../gallery/BookShelf";
+import BookShelfContainer from "../../gallery/BookShelfContainer";
 
 interface ProfilePageProps {
   name?: string;
   userData?: {
     profilePic?: string;
+    DreamsCount?: number;
   };
   collection?: any[];
   isLoading?: boolean;
@@ -37,6 +39,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           <div className="relative -mt-24">
             <Skeleton className="w-32 h-32 rounded-full" />
             <Skeleton className="h-8 w-48 mt-4" />
+          </div>
+          <div className="relative mt-4 border-t border-blue-900/30 pt-4 space-y-4">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-[75%]" />
+            <Skeleton className="h-8 w-[50%]" />
           </div>
         </div>
       </div>
@@ -89,7 +97,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           {/* Stats Bar */}
           <div className="flex gap-6 mt-4 border-t border-blue-900/30 pt-4">
             <div className="flex flex-col items-center">
-              <span className="font-semibold text-xl">128</span>
+              <span className="font-semibold text-xl">
+                {userData?.DreamsCount}
+              </span>
               <span className="text-blue-400 text-sm">Dreams</span>
             </div>
             <div className="flex flex-col items-center">
@@ -106,7 +116,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
       {/* Content Tabs */}
       <div className="max-w-6xl mx-auto px-4 mt-8">
-        <Tabs defaultValue="dreams" className="w-full">
+        <Tabs defaultValue="collections" className="w-full">
           <TabsList className="bg-blue-900/20">
             <TabsTrigger value="collections">Collections</TabsTrigger>
             <TabsTrigger value="about">About</TabsTrigger>

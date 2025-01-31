@@ -110,7 +110,8 @@ const BookInfo: React.FC<BookInfoProps> = ({
       <div className="relative">
         <div className="group relative h-60 w-48  max-md:w-40 perspective-1000 ">
           <div className="absolute w-full h-full transition-all duration-500 transform-style-preserve-3d group-hover:rotate-y-5 group-hover:translate-x-4 group-hover:translate-y-[-10px] cursor-pointer">
-            {shareStatus ? (
+            {shareStatus &&
+            !window.location.pathname.startsWith("/dreams/profile") ? (
               <HoverCard openDelay={200} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <Button className="absolute mr-1 p-2 right-0 top-14 rounded-full bg-red-500 z-40 hover:bg-red-600 -translate-y-16 transition-all duration-300 shadow-lg">
@@ -126,7 +127,8 @@ const BookInfo: React.FC<BookInfoProps> = ({
                   </div>
                 </HoverCardContent>
               </HoverCard>
-            ) : !shareStatus ? (
+            ) : !shareStatus &&
+              !window.location.pathname.startsWith("/dreams/profile") ? (
               <Dialog>
                 <HoverCard openDelay={200} closeDelay={100}>
                   <DialogTrigger asChild>

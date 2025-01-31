@@ -20,10 +20,15 @@ interface BookData {
 }
 interface BookShelfProps {
   title: string;
+  profileAcces?: boolean;
   books: BookData[];
 }
 
-const BookShelf: React.FC<BookShelfProps> = ({ title, books }) => {
+const BookShelf: React.FC<BookShelfProps> = ({
+  title,
+  books,
+  profileAcces,
+}) => {
   const BookOpenSfx = "/book-drop.mp3";
   const [play] = useSound(BookOpenSfx, { volume: 0.05 });
   return (
@@ -50,7 +55,7 @@ const BookShelf: React.FC<BookShelfProps> = ({ title, books }) => {
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-4"
                 >
-                  <Book info={book} />
+                  <Book info={book} profileAcces={true} />
                 </motion.div>
               </div>
             ))}

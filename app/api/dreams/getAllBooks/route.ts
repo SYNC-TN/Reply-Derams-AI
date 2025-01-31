@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
 import { authOptions } from "@/lib/auth";
+import { decodeEmail } from "@/lib/jwt";
 
 export async function GET(request: Request) {
   try {
@@ -18,7 +19,6 @@ export async function GET(request: Request) {
     }
 
     const userEmail = session.user.email;
-
     // Calculate skip value for pagination
     const skip = (page - 1) * limit;
 

@@ -6,6 +6,7 @@ import { compare } from "bcryptjs";
 import { User } from "@/app/models/User";
 import connectDB from "./mongodb";
 import crypto from "crypto";
+import { encodeEmail, decodeEmail } from "./jwt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -39,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           return {
-            id: user._id.toString(),
+            id: encodeEmail(user.email), // Encode email as JWT
             email: user.email,
             name: user.name,
             image: user.image,
@@ -55,50 +56,49 @@ export const authOptions: NextAuthOptions = {
           GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          }),
-        ]
-      : []),
-    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
-      ? [
-          GithubProvider({
-            clientId: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            profile(profile) {
+              return {
+                id: encodeEmail(profile.email), // Encode email as JWT
+                email: profile.email,
+                name: profile.name,
+                image: profile.picture,
+              };
+            },
           }),
         ]
       : []),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Early return if account is null or using credentials
       if (!account || account.provider === "credentials") {
         return true;
       }
 
       try {
         await connectDB();
+        const email = decodeEmail(user.id as string);
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email: user.email });
+        if (!email) {
+          throw new Error("Invalid token");
+        }
+
+        const existingUser = await User.findOne({ email });
 
         if (existingUser) {
-          // Update user information if needed
           existingUser.name = user.name;
           existingUser.profileName = user.name;
           existingUser.image = user.image;
           existingUser.provider = account.provider;
           await existingUser.save();
-
           return true;
         }
 
-        // Create new user if they don't exist
-        const newUser = await User.create({
-          email: user.email,
+        await User.create({
+          email,
           name: user.name,
           profileName: user.name,
           image: user.image,
           provider: account.provider,
-          // Generate a secure random password for OAuth users
           password: crypto.randomBytes(32).toString("hex"),
         });
 
@@ -110,13 +110,30 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id; // Already encoded as JWT
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+
+        // Fetch user data using decoded email
+        try {
+          await connectDB();
+          const email = decodeEmail(token.id as string);
+          if (!email) {
+            throw new Error("Invalid token");
+          }
+
+          const dbUser = await User.findOne({ email });
+          if (dbUser) {
+            session.user.name = dbUser.name;
+            session.user.image = dbUser.image;
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
       }
       return session;
     },
@@ -124,7 +141,8 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 };
