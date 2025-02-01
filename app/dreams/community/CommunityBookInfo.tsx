@@ -25,7 +25,7 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
     ...defaultAuthor,
     ...author,
   };
-
+  const [hovered, setHovered] = React.useState(false);
   const profileUrl = `/dreams/profile/${(username || "anonymous")
     .toLowerCase()
     .replaceAll(/\s+/g, "-")}`;
@@ -46,6 +46,8 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
               window.location.href = profileUrl;
             }}
             className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10 cursor-pointer hover:bg-slate-900/70 transition-colors"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
           >
             <div className="flex items-center gap-2">
               <Avatar className="w-8 h-8 hover:scale-125 transition-transform">
@@ -60,7 +62,11 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-200 truncate">
+                <p
+                  className={`text-xs font-medium  truncate ${
+                    hovered ? "text-sky-600" : "text-slate-200"
+                  }`}
+                >
                   {username || "anonymous"}
                 </p>
               </div>

@@ -10,12 +10,13 @@ import {
 import BookPage from "./BookPage";
 import useSound from "use-sound";
 import BookNavigation from "./BookNavigation";
-import { set } from "mongoose";
-import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import BackgroundAudioSlider from "./BackgroundAudioSlider";
 
 interface DreamBookContainerProps {
-  book: { pages: { text: string; image: string }[]; share: boolean };
+  book: {
+    pages: { text: string; image: string; soundEffect: string }[];
+    share: boolean;
+  };
   lang: string;
   currentPage: number;
   onPageChange: (page: number) => void;
@@ -34,6 +35,8 @@ export default function DreamBookContainer({
     localStorage.getItem("isReading") === "true" ? true : false
   );
   const [playFlipSound] = useSound("/page-flip.mp3", { volume: 0.3 });
+  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isReadingRef = useRef(false);
   const autoReadingRef = useRef(false);
@@ -41,12 +44,50 @@ export default function DreamBookContainer({
   const nextPageRef = useRef<number>(currentPage);
   const [language, setLanguage] = useState("en");
   const isFlippingRef = useRef(false);
+  const [audioSliderValue, setAudioSliderValue] = useState(0.5);
 
   const StoreReadingStats = localStorage.setItem(
     "isReading",
     autoTurnEnabled.toString()
   );
+  useEffect(() => {
+    console.log("audio value", audioSliderValue);
+  }, [audioSliderValue]);
+  useEffect(() => {
+    backgroundAudioRef.current = new Audio();
+    return () => {
+      if (backgroundAudioRef.current) {
+        backgroundAudioRef.current.pause();
+        backgroundAudioRef.current = null;
+      }
+    };
+  }, []);
+  useEffect(() => {
+    if (backgroundAudioRef.current) {
+      backgroundAudioRef.current.volume = audioSliderValue;
+    }
+  }, [audioSliderValue]);
 
+  const playBackgroundSound = async (soundUrl: string) => {
+    try {
+      if (!backgroundAudioRef.current) return;
+
+      // Stop any currently playing background sound
+      backgroundAudioRef.current.pause();
+      backgroundAudioRef.current.currentTime = 0;
+
+      // Set the new sound URL
+      backgroundAudioRef.current.src = soundUrl;
+      backgroundAudioRef.current.volume = audioSliderValue;
+      backgroundAudioRef.current.loop = true; // Make the background sound loop
+
+      // Play the sound
+      await backgroundAudioRef.current.play();
+      console.log("Playing background sound:", soundUrl);
+    } catch (error) {
+      console.error("Error playing background sound:", error);
+    }
+  };
   useEffect(() => {
     if (lang) {
       console.log("Language is set to: ", lang);
@@ -59,6 +100,12 @@ export default function DreamBookContainer({
       );
     }
   }, []);
+  const stopBackgroundSound = () => {
+    if (backgroundAudioRef.current) {
+      backgroundAudioRef.current.pause();
+      backgroundAudioRef.current.currentTime = 0;
+    }
+  };
   const pageVariants = {
     enter: (direction: "next" | "prev") => ({
       transform: `perspective(1500px) translateY(${
@@ -90,6 +137,8 @@ export default function DreamBookContainer({
       audioRef.current.currentTime = 0;
       URL.revokeObjectURL(audioRef.current.src);
     }
+    stopBackgroundSound();
+
     setIsReading(false);
     console.log("autoTurnEnabled status is set to: ", autoTurnEnabled);
     localStorage.setItem("isReading", autoTurnEnabled.toString());
@@ -106,7 +155,10 @@ export default function DreamBookContainer({
       setIsReading(true);
       isReadingRef.current = true;
       autoReadingRef.current = autoReading;
-
+      const soundEffect = book.pages[pageToRead].soundEffect;
+      if (soundEffect) {
+        await playBackgroundSound(soundEffect);
+      }
       const response = await fetch("/api/dreams/gtts", {
         method: "POST",
         headers: {
@@ -237,6 +289,11 @@ export default function DreamBookContainer({
 
   return (
     <div className="relative w-full h-full md:scale-90 max-md:h-[calc(80vh)] z-50 overflow-visible">
+      <BackgroundAudioSlider
+        className="absolute left-[100%] z-50"
+        setValue={setAudioSliderValue}
+      />
+
       <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50 flex gap-4">
         <button
           onClick={() => {

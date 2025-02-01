@@ -10,10 +10,9 @@ import { BookDataProvider, useBookData } from "./BookData";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import "./CreateForm.css";
-import { set } from "mongoose";
-import { Share } from "next/font/google";
 import ShareBook from "./share";
 import DreamTags from "./Tags";
+import SoundEffectBtn from "./SoundEffectBtn";
 
 interface CreateDreamFormProps {
   onClose: () => void;
@@ -22,12 +21,14 @@ interface CreateDreamFormProps {
 interface Page {
   pageNumber: number;
   imagePrompt: string;
+  soundEffect: string;
   text: string;
 }
 
 interface GeneratedPage {
   text: string;
   imageUrl: string;
+  soundEffect: string;
 }
 
 interface CoverData {
@@ -45,6 +46,7 @@ interface DreamFormData {
   description: string;
   artStyle: string;
   share: boolean;
+  soundEffect: boolean;
   tags: Tag[];
   language: string;
   bookTone: string;
@@ -74,6 +76,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
     artStyle,
     language,
     share,
+    soundEffect,
     tags,
     bookTone,
     storyLength,
@@ -84,6 +87,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
     artStyle: "",
     language: "",
     share: false,
+    soundEffect: false,
     tags: [],
     bookTone: "",
     storyLength: "",
@@ -125,6 +129,41 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
     ctx.drawImage(img, 0, 0, width, height);
 
     return canvas.toDataURL("image/jpeg");
+  };
+  const generateSoundEffect = async (description: string, retryCount = 0) => {
+    if (!soundEffect) return ""; // Return empty string when sound effects are disabled
+
+    try {
+      const response = await fetch("/api/dreams/soundEffect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ description }),
+      });
+
+      if (!response.ok) {
+        if (retryCount < MAX_RETRIES) {
+          await delay(RATE_LIMIT_DELAY * (retryCount + 1));
+          return generateSoundEffect(description, retryCount + 1);
+        }
+        return "https://freesound.org/data/previews/000/000/001-hq.mp3";
+      }
+
+      const data = await response.json();
+      if (!data.soundUrl) {
+        return "https://freesound.org/data/previews/000/000/001-hq.mp3";
+      }
+
+      return data.soundUrl;
+    } catch (error) {
+      console.error("Sound effect generation error:", error);
+      if (retryCount < MAX_RETRIES) {
+        await delay(RATE_LIMIT_DELAY * (retryCount + 1));
+        return generateSoundEffect(description, retryCount + 1);
+      }
+      return "https://freesound.org/data/previews/000/000/001-hq.mp3";
+    }
   };
 
   const generateImage = async (prompt: string, retryCount = 0) => {
@@ -194,11 +233,21 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (share && tags.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please provide at least one tag for your dream",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const toastId = toast({
       title: "Processing",
       description: "Your book still generating...",
-      duration: Infinity, // Keep the toast visible until dismissed
+      duration: Infinity,
     });
+
     if (!description.trim()) {
       toast({
         title: "Error",
@@ -247,12 +296,10 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       // Process cover data
       const coverResult = await coverResponse.json();
       const parsedCoverData: CoverData = JSON.parse(coverResult.response);
-
-      // Generate cover image
       const coverImageUrl = await generateImage(
         parsedCoverData.coverImagePrompt
       );
-      setCoverData(parsedCoverData);
+
       const finalCoverData: CoverData = {
         ...parsedCoverData,
         coverImageUrl,
@@ -276,15 +323,24 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
       setStoryPages(parsedPages);
 
-      // Generate page images
+      // Generate page content sequentially with proper progress tracking
       const generatedPages: GeneratedPage[] = [];
+      const totalSteps = parsedPages.length;
+
       for (let i = 0; i < parsedPages.length; i++) {
-        updateProgress(i, parsedPages.length);
-        const imageUrl = await generateImage(parsedPages[i].imagePrompt);
+        // Generate image and sound effect concurrently for each page
+        const [imageUrl, pageSoundEffect] = await Promise.all([
+          generateImage(parsedPages[i].imagePrompt),
+          generateSoundEffect(parsedPages[i].text),
+        ]);
+
         generatedPages.push({
           text: parsedPages[i].text,
           imageUrl,
+          soundEffect: pageSoundEffect, // This will be either a URL or empty string
         });
+
+        updateProgress(i + 1, totalSteps);
       }
 
       // Prepare final form data
@@ -293,6 +349,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         artStyle: artStyle || "realistic",
         language: language || "en",
         share: share || false,
+        soundEffect: soundEffect || false,
         tags: tags || [],
         pages: generatedPages,
         coverData: finalCoverData,
@@ -302,7 +359,6 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         genre: genre || "fantasy",
       };
 
-      console.log("Final form data:", formData);
       // Save dream
       const saveResponse = await fetch("/api/dreams", {
         method: "POST",
@@ -316,14 +372,16 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       }
 
       const result = await saveResponse.json();
+
       if (saveResponse.ok) {
         toastId.dismiss();
         toast({
           title: "Success",
-          description: "Your book ready to read",
-          duration: 2000, // Closes after 2 seconds
+          description: "Your book is ready to read",
+          duration: 2000,
         });
       }
+
       if (!result.data?.url) {
         throw new Error("Invalid response from server");
       }
@@ -340,10 +398,6 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         duration: 5000,
       });
     } finally {
-      console.log("Toast :Your Story has been created!");
-      toast({
-        title: "Your Story has been created!",
-      });
       setIsGenerating(false);
       setProgress(0);
     }
@@ -352,17 +406,16 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8 createForm">
       <div className="m-auto ">
-        <div className="sharebtn fixed right-32 top-6 mt-4 mr-4 max-md:right-0">
-          <ShareBook />
-        </div>
+        <SoundEffectBtn />
         <DescriptionDream />
         <LanguageSelect />
         <ArtStyle />
         <AdvancedOptions />
         {share && <DreamTags />}
 
-        <div className="space-y-4">
+        <div className="space-y-4 mt-5">
           <div className="flex justify-end space-x-4">
+            <ShareBook />
             <Button
               type="button"
               variant="outline"

@@ -11,6 +11,7 @@ interface BookDataContextType {
   language: string;
   share: boolean;
   tags: Tag[];
+  soundEffect: boolean;
   bookTone: string;
   storyLength: string;
   perspective: string;
@@ -20,6 +21,7 @@ interface BookDataContextType {
   setLanguage: (language: string) => void;
   setShare: (share: boolean) => void;
   setTags: (tags: Tag[]) => void;
+  setSoundEffect: (soundEffect: boolean) => void;
   setBookTone: (bookTone: string) => void;
   setStoryLength: (storyLength: string) => void;
   setPerspective: (perspective: string) => void;
@@ -36,6 +38,7 @@ export function BookDataProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState("EN");
   const [share, setShare] = useState(false);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [soundEffect, setSoundEffect] = useState(false);
   const [bookTone, setBookTone] = useState("");
   const [storyLength, setStoryLength] = useState("");
   const [perspective, setPerspective] = useState("");
@@ -50,6 +53,7 @@ export function BookDataProvider({ children }: { children: React.ReactNode }) {
     console.log("Language:", language);
     console.log("Share:", share);
     console.log("Tags:", tags);
+    console.log("Sound Effect:", soundEffect);
     console.log("Book Tone:", bookTone);
     console.log("Story Length:", storyLength);
     console.log("Perspective:", perspective);
@@ -59,6 +63,8 @@ export function BookDataProvider({ children }: { children: React.ReactNode }) {
     artStyle,
     language,
     share,
+    tags,
+    soundEffect,
     bookTone,
     storyLength,
     perspective,
@@ -73,6 +79,7 @@ export function BookDataProvider({ children }: { children: React.ReactNode }) {
         language,
         share,
         tags,
+        soundEffect,
         bookTone,
         storyLength,
         perspective,
@@ -82,6 +89,7 @@ export function BookDataProvider({ children }: { children: React.ReactNode }) {
         setLanguage,
         setShare,
         setTags,
+        setSoundEffect,
         setBookTone,
         setStoryLength,
         setPerspective,

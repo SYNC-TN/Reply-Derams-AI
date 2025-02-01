@@ -9,6 +9,7 @@ interface DreamPage {
   nb: number;
   text: string;
   image: string;
+  soundEffect: string;
 }
 
 interface DreamBook {
@@ -56,6 +57,7 @@ export default function DreamBookPage() {
 
         const data = await response.json();
         setBook(data);
+        console.log("Dream book data:", data);
         setError(null);
       } catch (error) {
         if (error instanceof Error && error.message.includes("404")) {

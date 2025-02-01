@@ -6,6 +6,9 @@ const PageSchema = new mongoose.Schema(
     nb: { type: Number, required: true },
     text: { type: String, required: true },
     image: { type: String },
+    soundEffect: {
+      type: String,
+    },
   },
   { timestamps: true, _id: false }
 );
@@ -74,6 +77,10 @@ const DreamStorySchema = new mongoose.Schema(
       trim: true,
     },
     share: {
+      type: Boolean,
+      default: false,
+    },
+    soundEffect: {
       type: Boolean,
       default: false,
     },

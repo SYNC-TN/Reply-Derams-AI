@@ -235,7 +235,7 @@ export function AppSidebar() {
       </SidebarContent>
       {/* Avatar Section at bottom */}
       <SidebarFooter className="mt-auto overflow-hidden">
-        <div className="pt-2  border-t border-blue-900/20">
+        <div className={`pt-2  border-t border-blue-900/20 `}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -244,7 +244,13 @@ export function AppSidebar() {
                   state === "collapsed" ? "w-10" : "w-full"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div
+                  className={`flex items-center gap-3 ${
+                    state === "collapsed"
+                      ? "w-10 justify-start"
+                      : "justify-start"
+                  }`}
+                >
                   <Avatar
                     className={`h-8 w-8 transition-transform duration-300 ${
                       state === "collapsed" ? "-translate-x-4" : ""

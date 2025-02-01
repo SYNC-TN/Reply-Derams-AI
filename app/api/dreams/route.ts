@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 interface Page {
   text: string;
   imageUrl: string;
+  soundEffect: string;
 }
 interface Tag {
   id: number;
@@ -32,6 +33,7 @@ interface DreamRequestBody {
   description: string;
   share: boolean;
   tags: Tag[];
+  soundEffect: boolean;
   artStyle: string;
   language: string;
   bookTone: string;
@@ -99,6 +101,7 @@ export async function POST(req: Request) {
       url: url,
       name: `Dream: ${truncatedDescription}`,
       share: body.share || false,
+      soundEffect: body.soundEffect || false,
       Tags: body.tags || [],
       description: body.description,
       title: `Dream: ${truncatedDescription}`,
@@ -122,6 +125,7 @@ export async function POST(req: Request) {
         nb: index + 1,
         text: page.text,
         image: page.imageUrl,
+        soundEffect: page.soundEffect,
       })),
       coverData: {
         coverImagePrompt:
