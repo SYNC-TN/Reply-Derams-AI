@@ -127,7 +127,7 @@ export function AppSidebar() {
   );
   return (
     <Sidebar
-      className="w-64 bg-[#0a1929] border-r border-blue-900/20 flex flex-col"
+      className="w-64 bg-[#0a1929] border-r border-blue-900/20 flex flex-col z-50  "
       collapsible="icon"
     >
       <SidebarContent className="overflow-x-hidden">

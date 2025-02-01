@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BookHeart, Eye, Share2, User } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,8 +14,8 @@ const defaultAuthor: Author = {
 const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   title,
   username,
-  profilePic,
   url,
+  profilePic,
   stats,
   coverData,
   author = defaultAuthor,
@@ -25,7 +25,6 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
     ...defaultAuthor,
     ...author,
   };
-  const [hover, setHover] = React.useState(false);
 
   const profileUrl = `/dreams/profile/${(username || "anonymous")
     .toLowerCase()
@@ -38,7 +37,7 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
         <div className="absolute left-0 w-6 h-full bg-slate-700 transform origin-left skew-y-12"></div>
 
         {/* Book cover */}
-        <div className="absolute w-full h-full bg-slate-800 rounded-r-lg shadow-xl ">
+        <div className="absolute w-full h-full bg-slate-800 rounded-r-lg shadow-xl">
           {/* Author info at the top */}
           <div
             onClick={(e) => {
@@ -46,24 +45,22 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
               e.stopPropagation();
               window.location.href = profileUrl;
             }}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10 cursor-pointer  hover:bg-slate-900/70   transition-colors "
+            className="absolute top-0 left-0 right-0 p-2 bg-slate-900/90 rounded-tr-lg z-10 cursor-pointer hover:bg-slate-900/70 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={profilePic} />
+              <Avatar className="w-8 h-8 hover:scale-125 transition-transform">
+                <AvatarImage
+                  src={
+                    profilePic ||
+                    "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?t=st=1737843955~exp=1737847555~hmac=47968cdf3a6e5b75617ea517be7e07e28789dd2052540707470c583ad0757fb8&w=740"
+                  }
+                />
                 <AvatarFallback>
                   <User className="w-4 h-4" />
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p
-                  className={
-                    "text-xs font-medium text-slate-200 truncate " +
-                    (hover ? "text-sky-600" : "")
-                  }
-                >
+                <p className="text-xs font-medium text-slate-200 truncate">
                   {username || "anonymous"}
                 </p>
               </div>

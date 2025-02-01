@@ -45,31 +45,44 @@ const HeaderBar = ({ setTab }: HeaderBarProps) => {
   }, [selectedTab, setTab]);
 
   return (
-    <div className="relative w-full z-10">
+    <div className="relative w-full z-10 px-4 md:px-6">
       <Swiper
         modules={[Navigation, Mousewheel]}
-        spaceBetween={5}
+        spaceBetween={8}
         slidesPerView="auto"
         mousewheel={{
           forceToAxis: true,
+          sensitivity: 1.5,
         }}
-        className="mySwiper"
-        keyboard={true}
+        className="mySwiper py-2"
+        keyboard={{ enabled: true }}
+        speed={600}
+        resistance={true}
       >
-        {ListeTabs.map((tab, index) => (
-          <SwiperSlide key={index} className="!w-auto flex justify-center">
-            <Button
-              onClick={() => setSelectedTab(tab)}
-              className={
-                selectedTab === tab
-                  ? "bg-sky-600 w-auto h-6 text-white"
-                  : "w-auto h-6 bg-gradient-to-r from-slate-900 to-zinc-700 text-white"
-              }
+        <div className="flex items-center space-x-2">
+          {ListeTabs.map((tab, index) => (
+            <SwiperSlide
+              key={index}
+              className="!w-auto flex justify-center first:ml-0 last:mr-4"
             >
-              {tab}
-            </Button>
-          </SwiperSlide>
-        ))}
+              <Button
+                onClick={() => setSelectedTab(tab)}
+                className={`
+                  relative px-4 py-1.5 h-8 text-sm font-medium tracking-wide
+                  transition-all duration-300 ease-out
+                  hover:scale-105 active:scale-95
+                  ${
+                    selectedTab === tab
+                      ? "bg-sky-600 text-white shadow-lg shadow-sky-500/25 hover:bg-sky-500"
+                      : "bg-gradient-to-r from-slate-800 to-slate-700 text-slate-200 hover:from-slate-700 hover:to-slate-600"
+                  }
+                `}
+              >
+                {tab}
+              </Button>
+            </SwiperSlide>
+          ))}
+        </div>
         <SwiperNavButtons />
       </Swiper>
     </div>

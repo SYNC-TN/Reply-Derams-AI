@@ -10,7 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <Providers>
         <SidebarProvider>
-          <div className="flex min-h-screen w-full">
+          <div className="flex min-h-screen w-full overflow-hidden">
             <AppSidebar />
             <main className="flex-1 relative w-full">
               <div className="sticky top-0 z-50 flex justify-between items-center p-4">

@@ -57,7 +57,7 @@ const Categorie = memo(
             : data.data
             ? data.data
             : [];
-
+          console.log("Fetched books:", booksArray);
           /* setSelectedBooks((prev) => [...prev, ...booksArray]);*/
           setSelectedBooks((prevBooks) => {
             const uniqueBooks = [...prevBooks];

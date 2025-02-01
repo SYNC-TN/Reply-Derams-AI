@@ -55,7 +55,7 @@ const AllCategories = memo(() => {
   const categoriesToRender = selectedTab === "All" ? ListTitles : [selectedTab];
 
   return (
-    <div className="flex flex-col space-y-8 w-full min-h-screen">
+    <div className="flex flex-col space-y-8 w-full min-h-screen ">
       <SearchBar books={allBooks} />
       <div className="h-16">
         {" "}

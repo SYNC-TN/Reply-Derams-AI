@@ -20,8 +20,8 @@ const SearchBar = ({ books }: SearchBarProps) => {
         const searchTerm = search.toLowerCase();
         return title.includes(searchTerm);
       })
-      .filter((book, index) => {
-        const bookId = index || book.coverData.title;
+      .filter((book) => {
+        const bookId = book.url || book.coverData.title;
         if (uniqueBookIds.has(bookId)) {
           return false;
         }
