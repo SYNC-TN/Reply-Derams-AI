@@ -23,7 +23,7 @@ const SwiperNavButtons = () => {
           onClick={() => swiper.slidePrev()}
           className={
             isStart
-              ? "  opacity-30"
+              ? " hidden"
               : "" +
                 "bg-gray-800/50 hover:bg-gray-800/70 text-white p-2 rounded-full cursor-pointer z-50"
           }
@@ -36,7 +36,7 @@ const SwiperNavButtons = () => {
           onClick={() => swiper.slideNext()}
           className={
             isEnd
-              ? "  opacity-30"
+              ? " hidden"
               : "" +
                 "bg-gray-800/50 hover:bg-gray-800/70 text-white p-2 rounded-full cursor-pointer "
           }

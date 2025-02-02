@@ -23,7 +23,6 @@ const UserSchema = new mongoose.Schema(
         username: {
           type: String,
           required: true,
-          unique: true,
         },
         id: {
           type: mongoose.Schema.Types.ObjectId,
@@ -37,7 +36,6 @@ const UserSchema = new mongoose.Schema(
         username: {
           type: String,
           required: true,
-          unique: true,
         },
         id: {
           type: mongoose.Schema.Types.ObjectId,
@@ -88,5 +86,7 @@ UserSchema.pre("save", function (next) {
   }
   next();
 });
+UserSchema.index({ "Followers.id": 1, "Followers.username": 1 });
+UserSchema.index({ "Following.id": 1, "Following.username": 1 });
 
 export const User = mongoose.models.User || mongoose.model("User", UserSchema);

@@ -5,8 +5,11 @@ import { User } from "@/app/models/User";
 import { DreamStory } from "@/app/models/DreamStory";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { decodeEmail } from "@/lib/jwt";
 import { profile } from "console";
+interface userDetails {
+  id: string;
+  username: string;
+}
 // Removed unnecessary import
 export async function GET(
   request: Request,
@@ -21,8 +24,9 @@ export async function GET(
     } else {
       console.log("User ID is undefined");
     }
-
+    let isFollowing: boolean = false;
     const user = await User.findOne({ profileName: params.url });
+    const currentUser = await User.findOne({ email: token });
     const dreams = await DreamStory.find({
       email: user.email,
       share: true,
@@ -30,6 +34,12 @@ export async function GET(
     if (!user) {
       console.log("User not found:", params.url);
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (currentUser.Following.length > 0) {
+      isFollowing = currentUser.Following.some(
+        (check: userDetails) => check.id.toString() === user._id.toString()
+      );
     }
     const count = dreams.length;
     const ModifiedDreams = dreams.map((dream) => {
@@ -52,6 +62,8 @@ export async function GET(
       FollowersCount: user.Followers.length,
       FollowingCount: user.Following.length,
       profilePic: user.image || null,
+      profileName: user.profileName,
+      isFollowing: isFollowing,
       profileBanner: user.banner || null,
       collection: ModifiedDreams,
       isOwner: user.email === session?.user.email,

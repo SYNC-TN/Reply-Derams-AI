@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   MoreHorizontal,
   Mail,
@@ -10,6 +10,7 @@ import {
   BookOpen,
   Image,
   Camera,
+  Cross,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,8 @@ interface ProfilePageProps {
   userData?: {
     profilePic?: string;
     profileBanner?: string;
+    isFollowing?: boolean;
+    profileName?: string;
     DreamsCount?: number;
     FollowersCount?: number;
     FollowingCount?: number;
@@ -44,8 +47,53 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const [image, setImage] = React.useState(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const fileInputRefBanner = React.useRef<HTMLInputElement>(null);
-  const [followStatus, setFollowStatus] = React.useState(false);
   const [profilePicLoading, setProfilePicLoading] = React.useState(false);
+  const [isFollowing, setIsFollowing] = React.useState(
+    userData?.isFollowing || false
+  );
+
+  const [isUpdatingFollow, setIsUpdatingFollow] = React.useState(false);
+  useEffect(() => {
+    if (userData?.isFollowing !== undefined) {
+      setIsFollowing(userData.isFollowing);
+      console.log("isFollowing", userData.isFollowing);
+    }
+  }, [userData?.isFollowing]);
+  useEffect(() => {
+    setIsFollowing(userData?.isFollowing || false);
+  }, [userData?.isFollowing]);
+  const handleFollowClick = async () => {
+    if (isUpdatingFollow) return;
+
+    try {
+      setIsUpdatingFollow(true);
+      const newFollowStatus = !isFollowing;
+      setIsFollowing(newFollowStatus); // Optimistic update
+
+      const response = await fetch("/api/dreams/profile/follow", {
+        method: "POST",
+        body: JSON.stringify({
+          profileName: userData?.profileName,
+          followStatus: newFollowStatus,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(`Follow failed: ${data.error || "Unknown error"}`);
+      }
+
+      // No need to setIsFollowing here since we already did it optimistically
+    } catch (error) {
+      console.error("Follow operation failed:", error);
+      setIsFollowing(!isFollowing); // Revert on error
+    } finally {
+      setIsUpdatingFollow(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -272,7 +320,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                 {!userData?.isOwner ? (
                   <Button
                     variant="outline"
-                    onClick={() => setFollowStatus(!followStatus)}
+                    onClick={handleFollowClick}
+                    disabled={isUpdatingFollow}
                     className="flex items-center gap-2 
                       bg-gradient-to-r from-blue-700 to-blue-800 
                       text-white 
@@ -285,12 +334,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                       focus:ring-blue-500 
                       focus:ring-opacity-50"
                   >
-                    {!followStatus ? (
-                      <Book size={16} />
-                    ) : (
-                      <BookCheck size={16} />
-                    )}
-                    {followStatus ? "Following" : "Follow"}
+                    {isFollowing ? <BookCheck size={16} /> : <Book size={16} />}
+                    {isFollowing ? "Following" : "Follow"}
                   </Button>
                 ) : null}
               </div>
@@ -331,6 +376,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
           <TabsContent value="collections">
             <div className="text-center py-12 text-blue-400">
+              {userData?.isOwner ? (
+                <Link href="/dreams/">
+                  <Button
+                    className="absolute right-16 max-sm:-translate-y-24 max-sm:right-4 bg-blue-900/50 hover:bg-blue-900/80 cursor-pointer z-50"
+                    variant="ghost"
+                  >
+                    <Cross />
+                  </Button>
+                </Link>
+              ) : null}
               {collection.length === 0 || !collection ? (
                 <span> No collections created yet </span>
               ) : (
