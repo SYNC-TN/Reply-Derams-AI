@@ -27,6 +27,7 @@ export async function PATCH(request: NextRequest) {
     // Get the new username from request body
     const body = await request.json();
     const { newUsername } = body;
+    const newProfileName = newUsername.toLowerCase().replaceAll(/\s+/g, "-");
 
     if (!newUsername) {
       return NextResponse.json(
@@ -53,12 +54,14 @@ export async function PATCH(request: NextRequest) {
 
     // Update the username
     user.name = newUsername;
+    user.profileName = newProfileName;
     await user.save();
 
     // Create updated token data
     const updatedToken = {
       ...token,
       name: newUsername,
+      profileName: newProfileName,
     };
 
     // Encode the new token
@@ -74,6 +77,7 @@ export async function PATCH(request: NextRequest) {
       user: {
         id: user._id,
         name: user.name,
+        profileName: user.profileName,
         email: user.email,
         image: user.image,
       },

@@ -48,7 +48,10 @@ export async function GET(
         url: dream.url,
         name: dream.name,
         title: dream.title,
-        stats: dream.stats,
+        stats: {
+          likes: dream.stats.likes.length,
+          views: dream.views,
+        },
         coverData: dream.coverData,
         createdAt: dream.createdAt,
         updatedAt: dream.updatedAt,

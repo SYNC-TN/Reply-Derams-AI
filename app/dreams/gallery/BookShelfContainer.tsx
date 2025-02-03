@@ -71,6 +71,7 @@ const BookShelfContainer: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log(data);
 
       // Update books while removing duplicates based on a unique identifier
       setBooks((prevBooks) => {
@@ -225,14 +226,13 @@ const BookShelfContainer: React.FC = () => {
         title="My Dreams"
         books={filteredAndSortedBooks.map((dream) => ({
           title: dream.coverData.title,
-          username: dream.User,
           url: dream.url,
           share: dream.share,
           cover: dream.coverData?.coverImageUrl || "coverDefault.png",
           subtitle: dream.coverData.subtitle,
           stats: {
-            views: dream.stats?.likes || 0,
-            likes: dream.stats?.views || 0,
+            likes: dream.stats?.likes || 0,
+            views: dream.stats?.views || 0,
           },
         }))}
       />

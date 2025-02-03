@@ -106,7 +106,7 @@ export async function POST(req: Request) {
       description: body.description,
       title: `Dream: ${truncatedDescription}`,
       stats: {
-        likes: 0,
+        likes: [],
         views: 0,
       },
       options: [

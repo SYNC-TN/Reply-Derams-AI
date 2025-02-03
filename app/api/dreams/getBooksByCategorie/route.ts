@@ -21,7 +21,6 @@ export async function GET(request: Request) {
 
     const skip = (page - 1) * limit;
 
-    // Fetch dreams with user lookup in a single query
     const dreamResults = await DreamStory.aggregate([
       {
         $match: {
@@ -51,10 +50,16 @@ export async function GET(request: Request) {
         },
       },
       {
+        $addFields: {
+          "stats.likes": { $ifNull: [{ $size: "$stats.likes" }, 0] },
+          "stats.views": "$stats.views",
+        },
+      },
+      {
         $project: {
           User: 1,
           profilePic: "$userDetails.image",
-          username: 1,
+          username: "$userDetails.name",
           url: 1,
           name: 1,
           title: 1,

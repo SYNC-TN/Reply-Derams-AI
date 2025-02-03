@@ -25,7 +25,7 @@ const page = () => {
   const { data: session, status, update } = useSession();
   const [username, setUsername] = useState(session?.user?.name ?? "");
   const [isChanged, setIsChanged] = useState(false);
-
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     if (session?.user?.name) {
       setUsername(session.user.name);
@@ -35,6 +35,11 @@ const page = () => {
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUsername = e.target.value;
+    setError(null);
+    if (newUsername.length > 20) {
+      setError("Username must be less than 20 characters");
+      return;
+    }
     setUsername(newUsername);
     setIsChanged(newUsername.trim() !== session?.user?.name);
   };
@@ -119,6 +124,7 @@ const page = () => {
                 <p className="text-slate-400 text-sm">
                   Please enter a display name you are comfortable with.
                 </p>
+                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
               </div>
 
               <div className="flex flex-col md:flex-row gap-4">

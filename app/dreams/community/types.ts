@@ -1,6 +1,6 @@
-interface Stats {
-  likes?: number;
-  views?: number;
+export interface Stats {
+  likes: number;
+  views: number;
 }
 
 export interface BooksCategorie {

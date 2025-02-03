@@ -1,8 +1,6 @@
-// api/dreams/soundEffect/route.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// Types for better error handling
 interface FreesoundResult {
   id: string;
   name: string;
@@ -20,7 +18,6 @@ interface FreesoundSoundDetails {
   };
 }
 
-// Utility function to handle Freesound API calls with retries
 async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
@@ -40,7 +37,6 @@ async function fetchWithRetry(
 
       if (response.ok) return response;
 
-      // Handle rate limiting
       if (response.status === 429) {
         const retryAfter = response.headers.get("Retry-After");
         await new Promise((resolve) =>
@@ -97,7 +93,37 @@ async function getSoundById(
   }
 }
 
-// Cached fallback sounds for different categories
+async function getAISoundTerm(
+  model: any,
+  storyDescription: string = "",
+  pageDescription: string = "",
+  attempt: number = 1
+): Promise<string> {
+  const prompts = [
+    // First attempt - specific sound
+    `Given the following story description: "${storyDescription}" and page description: "${pageDescription}", suggest a specific sound effect that would enhance the atmosphere of this dream. Focus on natural sounds, ambient effects, or relevant environmental audio. Only return the search term, nothing else.`,
+
+    // Second attempt - broader interpretation
+    `Based on the scene: Story: "${storyDescription}" Page: "${pageDescription}", suggest an alternative sound effect that captures the mood or environment. Consider broader ambient sounds or atmospheric effects. Only return the search term, nothing else.`,
+
+    // Third attempt - most general
+    `For this scene: Story: "${storyDescription}" Page: "${pageDescription}", suggest a basic ambient sound that would work as background audio. Focus on versatile environmental sounds. Only return the search term, nothing else.`,
+  ];
+
+  try {
+    const result = await Promise.race([
+      model.generateContent(prompts[attempt - 1]),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("AI timeout")), 5000)
+      ),
+    ]);
+    return (result as any).response.text();
+  } catch (error) {
+    console.warn(`AI suggestion attempt ${attempt} failed:`, error);
+    return "ambient background";
+  }
+}
+
 const FALLBACK_SOUNDS = {
   ambient: "https://freesound.org/data/previews/000/000/001-hq.mp3",
   nature: "https://freesound.org/data/previews/000/000/002-hq.mp3",
@@ -108,10 +134,7 @@ export async function POST(req: Request) {
   try {
     const GeminiAPI = process.env.GEMINI_API_KEY;
     const FREESOUND_API_KEY = process.env.FREESOUND_API_KEY;
-    console.log("API Keys:", {
-      gemini: !!process.env.GEMINI_API_KEY,
-      freesound: !!process.env.FREESOUND_API_KEY,
-    });
+
     if (!GeminiAPI || !FREESOUND_API_KEY) {
       throw new Error("Missing required API keys");
     }
@@ -120,65 +143,60 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const requestBody = await req.json();
+    const pageDescription = requestBody.pageDescription;
+    const storyDescription = requestBody.storyDescription;
 
-    if (!requestBody.description?.trim()) {
+    console.log("Page description:", pageDescription);
+    console.log("Story description:", storyDescription);
+
+    if (!storyDescription?.trim() && !pageDescription?.trim()) {
       return NextResponse.json(
-        { error: "Page description is required" },
+        { error: "Description is required" },
         { status: 400 }
       );
     }
 
-    // Try to get AI-generated sound suggestion with timeout
-    const searchTermPromise = Promise.race([
-      model.generateContent(
-        `Based on this story page description, suggest a specific sound effect that would enhance the atmosphere. Focus on natural sounds, ambient effects, or relevant environmental audio. Only return the search term, nothing else. Description: ${requestBody.description}`
-      ),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("AI timeout")), 5000)
-      ),
-    ]);
+    // Try up to 3 different AI-generated terms
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const searchTerm = await getAISoundTerm(
+        model,
+        storyDescription,
+        pageDescription,
+        attempt
+      );
 
-    let searchTerm;
-    try {
-      const result = await searchTermPromise;
-      searchTerm = (result as any).response.text();
-    } catch (error) {
-      console.warn("Failed to get AI suggestion, using fallback:", error);
-      searchTerm = "ambient background";
+      console.log(`Attempt ${attempt} search term:`, searchTerm);
+
+      const soundId = await searchFreesound(searchTerm, FREESOUND_API_KEY);
+
+      if (soundId) {
+        const soundUrl = await getSoundById(soundId, FREESOUND_API_KEY);
+
+        if (soundUrl) {
+          console.log(`Found sound on attempt ${attempt}:`, soundUrl);
+          return NextResponse.json({
+            success: true,
+            searchTerm,
+            soundUrl,
+            attempt,
+          });
+        }
+      }
+
+      console.log(
+        `Attempt ${attempt} failed to find sound, trying next term...`
+      );
     }
 
-    // Search Freesound with the term
-    const soundId = await searchFreesound(searchTerm, FREESOUND_API_KEY);
-
-    if (!soundId) {
-      return NextResponse.json({
-        success: true,
-        soundUrl: FALLBACK_SOUNDS.default,
-        note: "Using fallback sound",
-      });
-    }
-
-    // Get sound URL
-    const soundUrl = await getSoundById(soundId, FREESOUND_API_KEY);
-
-    if (!soundUrl) {
-      return NextResponse.json({
-        success: true,
-        soundUrl: FALLBACK_SOUNDS.default,
-        note: "Using fallback sound",
-      });
-    }
-    console.log("suggesting sound effect:", searchTerm);
-    console.log("Sound effect:", soundUrl);
+    // If all attempts fail, use fallback
+    console.log("All attempts failed, using fallback sound");
     return NextResponse.json({
       success: true,
-      searchTerm,
-      soundUrl,
+      soundUrl: FALLBACK_SOUNDS.default,
+      note: "Using fallback sound after all attempts failed",
     });
   } catch (error) {
     console.error("Sound effect API error:", error);
-
-    // Always return a valid response with a fallback sound
     return NextResponse.json({
       success: true,
       soundUrl: FALLBACK_SOUNDS.default,

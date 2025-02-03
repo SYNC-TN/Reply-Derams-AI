@@ -26,6 +26,8 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
     ...author,
   };
   const [hovered, setHovered] = React.useState(false);
+  const formatter = new Intl.NumberFormat("en", { notation: "compact" });
+
   const profileUrl = `/dreams/profile/${(username || "anonymous")
     .toLowerCase()
     .replaceAll(/\s+/g, "-")}`;
@@ -104,13 +106,17 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                   {stats?.likes !== undefined && (
                     <div className="flex items-center gap-1 text-slate-400">
                       <BookHeart className="w-3 h-3" />
-                      <span className="text-xs">{stats.likes}</span>
+                      <span className="text-xs">
+                        {formatter.format(stats.likes)}
+                      </span>
                     </div>
                   )}
                   {stats?.views !== undefined && (
                     <div className="flex items-center gap-1 text-slate-400">
                       <Eye className="w-3 h-3" />
-                      <span className="text-xs">{stats.views}</span>
+                      <span className="text-xs">
+                        {formatter.format(stats.views)}
+                      </span>
                     </div>
                   )}
                 </div>

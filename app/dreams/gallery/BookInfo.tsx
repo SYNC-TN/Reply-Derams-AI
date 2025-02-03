@@ -43,10 +43,7 @@ interface BookInfoProps {
   share: boolean;
   url: string;
   cover: string;
-  stats: {
-    likes?: number;
-    views?: number;
-  };
+  stats: Stats;
 }
 
 const BookInfo: React.FC<BookInfoProps> = ({
@@ -61,6 +58,7 @@ const BookInfo: React.FC<BookInfoProps> = ({
   const [tags, setTags] = useState<Tag[]>([]);
   const [maxTags, setMaxTags] = useState(false);
   const session = useSession();
+  const formatter = new Intl.NumberFormat("en", { notation: "compact" });
 
   useEffect(() => {
     console.log(tags);
@@ -262,13 +260,17 @@ const BookInfo: React.FC<BookInfoProps> = ({
                     {stats?.likes !== undefined && (
                       <div className="flex items-center gap-1 text-slate-400">
                         <BookHeart className="w-3 h-3" />
-                        <span className="text-xs">{stats.likes}</span>
+                        <span className="text-xs">
+                          {formatter.format(stats.likes)}
+                        </span>
                       </div>
                     )}
                     {stats?.views !== undefined && (
                       <div className="flex items-center gap-1 text-slate-400">
                         <Eye className="w-3 h-3" />
-                        <span className="text-xs">{stats.views}</span>
+                        <span className="text-xs">
+                          {formatter.format(stats.views)}
+                        </span>
                       </div>
                     )}
                   </div>

@@ -107,7 +107,19 @@ const DreamStorySchema = new mongoose.Schema(
     },
 
     stats: {
-      likes: { type: Number, default: 0 },
+      likes: [
+        {
+          username: {
+            type: String,
+            required: true,
+          },
+          id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+          },
+        },
+      ],
       views: { type: Number, default: 0 },
     },
     options: [OptionSchema],

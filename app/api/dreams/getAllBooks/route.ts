@@ -37,7 +37,10 @@ export async function GET(request: Request) {
         name: dream.name,
         title: dream.title,
         share: dream.share,
-        stats: dream.stats,
+        stats: {
+          likes: dream.stats.likes.length,
+          views: dream.stats.views,
+        },
         coverData: dream.coverData,
         createdAt: dream.createdAt,
         updatedAt: dream.updatedAt,

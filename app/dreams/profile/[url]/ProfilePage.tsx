@@ -400,8 +400,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     cover: dream.coverData?.coverImageUrl || "coverDefault.png",
                     subtitle: dream.coverData.subtitle,
                     stats: {
-                      views: dream.stats?.likes || 0,
-                      likes: dream.stats?.views || 0,
+                      likes: dream.stats?.likes || 0,
+                      views: dream.stats?.views || 0,
                     },
                   }))}
                 />

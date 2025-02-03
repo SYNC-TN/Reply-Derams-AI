@@ -130,7 +130,11 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
     return canvas.toDataURL("image/jpeg");
   };
-  const generateSoundEffect = async (description: string, retryCount = 0) => {
+  const generateSoundEffect = async (
+    description: String,
+    story: any,
+    retryCount = 0
+  ) => {
     if (!soundEffect) return ""; // Return empty string when sound effects are disabled
 
     try {
@@ -139,13 +143,16 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ description }),
+        body: JSON.stringify({
+          pageDescription: description,
+          storyDescription: story,
+        }),
       });
 
       if (!response.ok) {
         if (retryCount < MAX_RETRIES) {
           await delay(RATE_LIMIT_DELAY * (retryCount + 1));
-          return generateSoundEffect(description, retryCount + 1);
+          return generateSoundEffect(description, story, retryCount + 1);
         }
         return "https://freesound.org/data/previews/000/000/001-hq.mp3";
       }
@@ -160,7 +167,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       console.error("Sound effect generation error:", error);
       if (retryCount < MAX_RETRIES) {
         await delay(RATE_LIMIT_DELAY * (retryCount + 1));
-        return generateSoundEffect(description, retryCount + 1);
+        return generateSoundEffect(description, story, retryCount + 1);
       }
       return "https://freesound.org/data/previews/000/000/001-hq.mp3";
     }
@@ -322,6 +329,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       }
 
       setStoryPages(parsedPages);
+      const storyString: any = parsedPages.map((page) => page.text).join(" ");
 
       // Generate page content sequentially with proper progress tracking
       const generatedPages: GeneratedPage[] = [];
@@ -331,7 +339,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         // Generate image and sound effect concurrently for each page
         const [imageUrl, pageSoundEffect] = await Promise.all([
           generateImage(parsedPages[i].imagePrompt),
-          generateSoundEffect(parsedPages[i].text),
+          generateSoundEffect(parsedPages[i].text, storyString),
         ]);
 
         generatedPages.push({

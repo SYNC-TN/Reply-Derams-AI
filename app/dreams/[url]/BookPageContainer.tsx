@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
   ChevronRight,
@@ -45,6 +46,12 @@ export default function DreamBookContainer({
   const [language, setLanguage] = useState("en");
   const isFlippingRef = useRef(false);
   const [audioSliderValue, setAudioSliderValue] = useState(0.5);
+  const [audioNarratorValue, setAudioNarratorValue] = useState(0.5);
+  const [defaultAudioValue, setDefaultAudioValue] = useState(audioSliderValue);
+  const [defaultAudioNarratorValue, setDefaultAudioNarratorValue] =
+    useState(audioNarratorValue);
+  const [audioNarratorSwitch, setAudioNarratorSwitch] = useState(false);
+  const [audioEffectSwithch, setAudioEffectSwitch] = useState(false);
 
   const StoreReadingStats = localStorage.setItem(
     "isReading",
@@ -63,10 +70,11 @@ export default function DreamBookContainer({
     };
   }, []);
   useEffect(() => {
-    if (backgroundAudioRef.current) {
+    if (backgroundAudioRef.current && audioRef.current) {
       backgroundAudioRef.current.volume = audioSliderValue;
+      audioRef.current.volume = audioNarratorValue;
     }
-  }, [audioSliderValue]);
+  }, [audioSliderValue, audioNarratorValue]);
 
   const playBackgroundSound = async (soundUrl: string) => {
     try {
@@ -183,6 +191,7 @@ export default function DreamBookContainer({
 
       if (audioRef.current) {
         audioRef.current.src = audioUrl;
+        audioRef.current.volume = audioNarratorValue;
         // Set the playback rate
 
         audioRef.current.playbackRate = speed;
@@ -286,15 +295,195 @@ export default function DreamBookContainer({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentPage]);
+  const switchNarrator = () => {
+    setDefaultAudioNarratorValue(audioNarratorValue);
+    setAudioNarratorSwitch(!audioNarratorSwitch);
+    if (audioNarratorSwitch) {
+      setAudioNarratorValue(defaultAudioNarratorValue);
+    } else {
+      setAudioNarratorValue(0.0);
+    }
+  };
+  const switchEffect = () => {
+    setDefaultAudioValue(audioSliderValue);
+    setAudioEffectSwitch(!audioEffectSwithch);
+    if (audioEffectSwithch) {
+      setAudioSliderValue(defaultAudioValue);
+    } else {
+      setAudioSliderValue(0.0);
+    }
+  };
+  const HeadphonesSVG = () => {
+    return (
+      <button onClick={() => switchNarrator()}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          className="w-6 h-6 ml-4  max-sm:translate-y-14  max-sm:ml-0"
+        >
+          {/* Headphone main part */}
+          <path
+            fill={!audioNarratorSwitch ? "#16ADE1" : `#ffffff`}
+            d="M219.4,208.9c0,5-2,9.6-5.3,12.9c-3.3,3.3-7.9,5.3-12.9,5.3h-22.8c0.5,42.4,35.1,76.7,77.6,76.7    s77.1-34.2,77.6-76.7h-22.8c-10.1,0-18.2-8.2-18.2-18.2c0-5,2-9.6,5.3-12.9c3.3-3.3,7.9-5.3,12.9-5.3h22.8v-36.5h-22.8    c-10.1,0-18.2-8.2-18.2-18.2c0-5,2-9.6,5.3-12.9c3.3-3.3,7.9-5.3,12.9-5.3h22.8c-0.2-21.1-8.9-40.1-22.7-54    c-14-14-33.5-22.7-54.9-22.7c-42.6,0-77.1,34.2-77.6,76.7h22.8c10.1,0,18.2,8.2,18.2,18.2c0,5-2,9.6-5.3,12.9    c-3.3,3.3-7.9,5.3-12.9,5.3h-22.8v36.5h22.8C211.2,190.6,219.4,198.8,219.4,208.9z"
+          />
+          {/* Right inner circle */}
+          <path
+            fill="#1B3954"
+            d="M354.7,197.7c-2.8,0-5,2.2-5,5s2.2,5,5,5c19.4,0,35.3-15.8,35.3-35.3s-15.8-35.3-35.3-35.3c-2.8,0-5,2.2-5,5    s2.2,5,5,5c13.9,0,25.3,11.3,25.3,25.3S368.7,197.7,354.7,197.7z"
+          />
+          {/* Left inner circle */}
+          <path
+            fill="#1B3954"
+            d="M157.3,207.7c2.8,0,5-2.2,5-5s-2.2-5-5-5c-13.9,0-25.3-11.3-25.3-25.3s11.3-25.3,25.3-25.3c2.8,0,5-2.2,5-5    s-2.2-5-5-5c-19.4,0-35.3,15.8-35.3,35.3S137.8,207.7,157.3,207.7z"
+          />
+          {/* Right outer circle */}
+          <path
+            fill="#1B3954"
+            d="M410.5,120c-2.8,0-5,2.2-5,5s2.2,5,5,5c23.4,0,42.4,19,42.4,42.4s-19,42.4-42.4,42.4c-2.8,0-5,2.2-5,5    s2.2,5,5,5c28.9,0,52.4-23.5,52.4-52.4S439.4,120,410.5,120z"
+          />
+          {/* Left outer circle */}
+          <path
+            fill="#1B3954"
+            d="M106.5,219.8c0-2.8-2.2-5-5-5c-23.4,0-42.4-19-42.4-42.4s19-42.4,42.4-42.4c2.8,0,5-2.2,5-5s-2.2-5-5-5    c-28.9,0-52.4,23.5-52.4,52.4s23.5,52.4,52.4,52.4C104.3,224.8,106.5,222.5,106.5,219.8z"
+          />
+          {/* Bottom part and stand */}
+          <path
+            fill="#1B3954"
+            d="M336.9,308c-21.7,21.4-50.4,33.2-80.9,33.2s-59.2-11.8-80.9-33.2c-17.6-17.4-28.9-39.4-32.7-63.7l-38,6    c5.1,32.4,20.2,61.8,43.7,85.1c23.9,23.7,54.3,38.5,87.1,42.9v53.6c-26,5-48.8,19.2-64.7,39.1h64.7h41.7h64.7    c-15.9-19.9-38.7-34.1-64.7-39.1v-53.6c32.8-4.4,63.2-19.3,87.1-42.9c23.5-23.2,38.6-52.7,43.7-85.1l-38-6    C365.8,268.5,354.5,290.6,336.9,308z"
+          />
+        </svg>
+      </button>
+    );
+  };
 
+  const BarChartSVG = () => {
+    return (
+      <button onClick={() => switchEffect()}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          className="w-6 h-6 max-sm:translate-y-12 ml-4 max-sm:ml-0"
+        >
+          {/* First Column (Dark) */}
+          <g>
+            <rect fill="#1B3954" x="41" y="388" width="87.8" height="32.7" />
+            <rect fill="#1B3954" x="41" y="328.7" width="87.8" height="32.7" />
+            <rect fill="#1B3954" x="41" y="269.3" width="87.8" height="32.7" />
+            <rect fill="#1B3954" x="41" y="210" width="87.8" height="32.7" />
+          </g>
+          {/* Second Column (Light) */}
+          <g>
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : "#ffffff"}
+              x="155.1"
+              y="388"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="155.1"
+              y="328.7"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="155.1"
+              y="269.3"
+              width="87.8"
+              height="32.7"
+            />
+          </g>
+          {/* Third Column (Dark) */}
+          <g>
+            <rect fill="#1B3954" x="269.2" y="388" width="87.8" height="32.7" />
+            <rect
+              fill="#1B3954"
+              x="269.2"
+              y="328.7"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill="#1B3954"
+              x="269.2"
+              y="269.3"
+              width="87.8"
+              height="32.7"
+            />
+            <rect fill="#1B3954" x="269.2" y="210" width="87.8" height="32.7" />
+          </g>
+          {/* Fourth Column (Light) */}
+          <g>
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="383.2"
+              y="388"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="383.2"
+              y="328.7"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="383.2"
+              y="269.3"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="383.2"
+              y="210"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="383.2"
+              y="150.7"
+              width="87.8"
+              height="32.7"
+            />
+            <rect
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
+              x="383.2"
+              y="91.3"
+              width="87.8"
+              height="32.7"
+            />
+          </g>
+        </svg>
+      </button>
+    );
+  };
   return (
-    <div className="relative w-full h-full md:scale-90 max-md:h-[calc(80vh)] z-50 overflow-visible">
-      <BackgroundAudioSlider
-        className="absolute left-[100%] z-50"
-        setValue={setAudioSliderValue}
-      />
-
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50 flex gap-4">
+    <div className="relative w-full h-full md:scale-90 max-md:h-[calc(80vh)] z-40 overflow-visible">
+      <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1 max-sm:gap-0">
+        <div className="absolute left-[102%] bottom-0 max-sm:bottom-0 z-40 max-sm:left-0">
+          <BackgroundAudioSlider
+            setValue={setAudioNarratorValue}
+            className="w-28"
+            defaultValue={[audioNarratorValue]}
+          />
+          <HeadphonesSVG />
+        </div>
+        <div className="absolute left-[106%] bottom-0 max-sm:bottom-0 max-sm:translate-y-9 z-40 max-sm:left-0 ">
+          <BackgroundAudioSlider
+            className="w-28 z-40  "
+            defaultValue={[audioSliderValue]}
+            setValue={setAudioSliderValue}
+          />
+          <BarChartSVG />
+        </div>
+      </div>
+      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-50 flex gap-4 max-sm:top-0">
         <button
           onClick={() => {
             if (isReading) {

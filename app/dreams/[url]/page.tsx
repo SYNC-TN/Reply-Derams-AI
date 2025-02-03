@@ -4,7 +4,10 @@ import { useParams } from "next/navigation";
 import BookPageContainer from "./BookPageContainer";
 import LoadingState from "./LoadingState";
 import { notFound } from "next/navigation";
-
+import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
+import LikeButton from "./LikeButton";
+import { set } from "mongoose";
 interface DreamPage {
   nb: number;
   text: string;
@@ -36,7 +39,13 @@ export default function DreamBookPage() {
   const [loading, setLoading] = useState(true);
   const [book, setBook] = useState<DreamBook | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+  const [isOwner, setIsOwner] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [nbLikes, setNbLikes] = useState(0);
+  const [isAlreadyLiking, setIsAlreadyLiking] = useState(false);
+  useEffect(() => {
+    console.log("like status:", isLiked);
+  }, [isLiked]);
   useEffect(() => {
     const fetchDream = async () => {
       try {
@@ -56,7 +65,14 @@ export default function DreamBookPage() {
         }
 
         const data = await response.json();
-        setBook(data);
+        const { dream, isOwner, nbLikes, isAlreadyLiking } = data;
+        setNbLikes(nbLikes);
+        setIsOwner(isOwner);
+        setIsAlreadyLiking(isAlreadyLiking);
+        console.log("isAlreadyLiking:", isAlreadyLiking);
+        console.log("owner:", isOwner);
+
+        setBook(dream);
         console.log("Dream book data:", data);
         setError(null);
       } catch (error) {
@@ -188,6 +204,18 @@ export default function DreamBookPage() {
       </div>
 
       {/* Book pages */}
+      {!isOwner && (
+        <>
+          <LikeButton
+            setLikeStatus={setIsLiked}
+            url={params.url}
+            nbLikes={nbLikes}
+            setNbLikes={setNbLikes}
+            initialLikeStatus={isAlreadyLiking}
+          />
+        </>
+      )}
+
       <div className="relative aspect-[3/4] md:aspect-[16/10] w-full max-md:pb-20">
         <BookPageContainer
           book={book}
