@@ -98,7 +98,7 @@ const GenreShowcase = () => {
           animate={isInView ? "show" : "hidden"}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 opacity-0" // Add initial opacity-0 class
         >
-          {genres.map((genre, index) => (
+          {genres.map((genre) => (
             <motion.div
               key={genre.name}
               variants={item}
@@ -175,7 +175,7 @@ const GenreShowcase = () => {
                 "Connect with fellow dreamers and share your visualized dream stories with the world",
               bgColor: "bg-cyan-500/20",
             },
-          ].map((feature, index) => (
+          ].map((feature) => (
             <div key={feature.title} className="text-center group">
               <motion.div
                 whileHover={{ scale: 1.1 }}

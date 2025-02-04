@@ -6,7 +6,6 @@ interface CachedConnection {
   promise: Promise<typeof mongoose> | null;
 }
 
-// Declare the global mongoose variable
 declare global {
   var mongoose: CachedConnection | undefined;
 }

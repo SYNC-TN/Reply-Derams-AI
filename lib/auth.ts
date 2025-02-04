@@ -68,7 +68,7 @@ export const authOptions: NextAuthOptions = {
       : []),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       if (!account || account.provider === "credentials") {
         return true;
       }

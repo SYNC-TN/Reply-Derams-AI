@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { User } from "@/app/models/User";
 import { decodeEmail } from "@/lib/jwt";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     let isCredentialsProvider = false;

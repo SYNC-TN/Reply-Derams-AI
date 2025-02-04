@@ -72,6 +72,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ response: cleanedResponse });
     } catch (jsonError) {
       console.error("Invalid JSON received from Gemini:", cleanedResponse);
+      console.error("Error:", jsonError);
+
       return NextResponse.json(
         { error: "Invalid JSON response from AI" },
         { status: 500 }

@@ -5,7 +5,6 @@ import { User } from "@/app/models/User";
 import { DreamStory } from "@/app/models/DreamStory";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { profile } from "console";
 interface userDetails {
   id: string;
   username: string;
@@ -51,6 +50,7 @@ export async function GET(
         stats: {
           likes: dream.stats.likes.length,
           views: dream.views,
+          comments: dream.comments.length,
         },
         coverData: dream.coverData,
         createdAt: dream.createdAt,
@@ -71,7 +71,6 @@ export async function GET(
       collection: ModifiedDreams,
       isOwner: user.email === session?.user.email,
     };
-
     console.log("Found user data:", userData);
     return NextResponse.json(userData);
   } catch (error) {

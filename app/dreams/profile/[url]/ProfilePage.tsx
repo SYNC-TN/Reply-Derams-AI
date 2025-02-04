@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Edit, Book, BookCheck, Camera, Cross } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -216,11 +217,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
             }}
           />
           <div className="absolute inset-0 bg-black/20" />
-          <img
+          <Image
             src={
               userData?.profileBanner ||
               "https://t3.ftcdn.net/jpg/04/67/96/14/360_F_467961418_UnS1ZAwAqbvVVMKExxqUNi0MUFTEJI83.jpg"
             }
+            alt="Profile Banner"
+            width={970}
+            height={250}
             className="object-cover w-full h-full"
           />
         </div>
@@ -390,6 +394,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     stats: {
                       likes: dream.stats?.likes || 0,
                       views: dream.stats?.views || 0,
+                      comments: dream.stats?.comments || 0,
                     },
                   }))}
                 />

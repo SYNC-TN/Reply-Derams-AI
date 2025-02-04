@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Logo from "../Logo";
-
+import Image from "next/image";
 export default function DreamLayout({
   children,
 }: {
@@ -14,13 +14,14 @@ export default function DreamLayout({
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-8 h-8">
-                <img
-                  src="/logo.png"
-                  alt="Replay Dreams Logo"
-                  className="w-full h-full  rounded-full scale-150 mt-1"
-                />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Replay Dreams Logo"
+                width={32}
+                height={32}
+                className="rounded-full scale-150 mt-1"
+              />
+
               <Logo test="true" />
             </Link>
 

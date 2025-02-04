@@ -5,6 +5,7 @@ import BookInfo from "./BookInfo";
 interface Stats {
   likes?: number;
   views?: number;
+  comments?: number;
 }
 
 interface BookData {

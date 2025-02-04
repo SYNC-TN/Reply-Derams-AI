@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { MessageCircle } from "lucide-react";
 import Comment from "./Comment";
-
+import { useCallback } from "react";
 interface CommentType {
   _id: string;
   username: string;
@@ -29,17 +29,17 @@ const CommentsSection = () => {
   }>({ commentId: null, username: null });
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     const response = await fetch(
       `/api/dreams/Comments/getAllComments?url=${params.url}`
     );
     const data = await response.json();
     setComments(data.comments);
-  };
+  }, [params.url]);
 
   useEffect(() => {
     fetchComments();
-  }, [params.url]);
+  }, [params.url, fetchComments]);
 
   const handleSubmit = async () => {
     if (!newComment.trim() || !session) return;

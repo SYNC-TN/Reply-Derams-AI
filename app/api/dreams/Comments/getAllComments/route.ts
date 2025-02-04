@@ -1,6 +1,20 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
+import { Types } from "mongoose";
+
+interface Comment {
+  username: string;
+  id: Types.ObjectId;
+  content: string;
+  image: string;
+  profileName: string;
+  createdAt: Date;
+  parentId: Types.ObjectId | null;
+  ancestors: Types.ObjectId[];
+  replies?: Comment[];
+  toObject(): Comment;
+}
 
 export async function GET(request: Request) {
   try {
@@ -29,7 +43,7 @@ export async function GET(request: Request) {
     }
 
     // Flatten comments to include top-level comments and their replies
-    const flattenedComments = story.comments.map((comment: any) => ({
+    const flattenedComments = story.comments.map((comment: Comment) => ({
       ...comment.toObject(),
       replies: comment.replies || [],
     }));

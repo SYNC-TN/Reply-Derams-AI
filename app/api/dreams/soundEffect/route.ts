@@ -94,7 +94,11 @@ async function getSoundById(
 }
 
 async function getAISoundTerm(
-  model: any,
+  model: {
+    generateContent: (
+      prompt: string
+    ) => Promise<{ response: { text: () => string } }>;
+  },
   storyDescription: string = "",
   pageDescription: string = "",
   attempt: number = 1
@@ -117,7 +121,8 @@ async function getAISoundTerm(
         setTimeout(() => reject(new Error("AI timeout")), 5000)
       ),
     ]);
-    return (result as any).response.text();
+    const aiResult = result as { response: { text: () => string } };
+    return aiResult.response.text();
   } catch (error) {
     console.warn(`AI suggestion attempt ${attempt} failed:`, error);
     return "ambient background";

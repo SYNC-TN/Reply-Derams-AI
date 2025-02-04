@@ -28,11 +28,6 @@ const Comment = ({
   // Find direct replies to this comment
   const directReplies = allComments.filter((c) => c.parentId === comment._id);
 
-  // Recursive function to get nested replies
-  const getNestedReplies = (parentId: string): CommentType[] => {
-    return allComments.filter((c) => c.parentId === parentId);
-  };
-
   // Count total number of replies recursively
   const countTotalReplies = (commentId: string): number => {
     const directChildReplies = allComments.filter(

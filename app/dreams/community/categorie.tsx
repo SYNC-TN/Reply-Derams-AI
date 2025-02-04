@@ -14,10 +14,6 @@ const SwiperComponent = dynamic(() => import("./SwiperComponent"), {
   ssr: false,
 });
 
-interface allBooks {
-  allBooks: CommunityBookProps[];
-  setAllBooks: React.Dispatch<React.SetStateAction<CommunityBookProps[]>>;
-}
 const Categorie = memo(
   ({
     BooksTitle,
@@ -58,27 +54,25 @@ const Categorie = memo(
             ? data.data
             : [];
           console.log("Fetched books:", booksArray);
-          /* setSelectedBooks((prev) => [...prev, ...booksArray]);*/
+
           setSelectedBooks((prevBooks) => {
             const uniqueBooks = [...prevBooks];
 
             booksArray.forEach((newBook: CommunityBookProps) => {
-              // Check if book already exists based on some unique identifier
               const existingBookIndex = uniqueBooks.findIndex(
-                (book) => book.url === newBook.url // Using URL as unique identifier
+                (book) => book.url === newBook.url
               );
 
               if (existingBookIndex === -1) {
-                // Book doesn't exist, add it
                 uniqueBooks.push(newBook);
               } else {
-                // Book exists, update it with new data
                 uniqueBooks[existingBookIndex] = newBook;
               }
             });
 
             return uniqueBooks;
           });
+
           allBooks.push(...booksArray);
           setHasMore(booksArray.length > 0);
           setIsLoading(false);
@@ -87,9 +81,8 @@ const Categorie = memo(
           setIsLoading(false);
         }
       },
-      [BooksTitle, Tab]
+      [BooksTitle, Tab, allBooks] // Added allBooks to dependency array
     );
-
     useEffect(() => {
       setSelectedBooks([]);
       setIsLoading(true);

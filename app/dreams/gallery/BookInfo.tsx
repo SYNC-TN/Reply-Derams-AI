@@ -1,9 +1,8 @@
 import React from "react";
-import { BookHeart, Eye } from "lucide-react";
+import { BookHeart, Eye, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Share } from "lucide-react";
 import {
@@ -16,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import dreamTagSuggestions from "../dreamTagSuggestions";
-import Select, { MultiValue, ActionMeta } from "react-select";
+import Select, { MultiValue } from "react-select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   HoverCard,
@@ -24,21 +23,24 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { useSession } from "next-auth/react";
+
 interface Tag {
   id: number;
   name: string;
   label: string;
   value: string;
 }
+
 interface Stats {
   likes?: number;
   views?: number;
+  comments?: number;
 }
+
 interface BookInfoProps {
   title: string;
   subtitle: string;
   username?: string;
-
   share: boolean;
   url: string;
   cover: string;
@@ -56,12 +58,13 @@ const BookInfo: React.FC<BookInfoProps> = ({
   const [shareStatus, setShareStatus] = useState(false);
   const [tags, setTags] = useState<Tag[]>([]);
   const [maxTags, setMaxTags] = useState(false);
-  const session = useSession();
+  const { data: session } = useSession();
   const formatter = new Intl.NumberFormat("en", { notation: "compact" });
 
   useEffect(() => {
     console.log(tags);
   }, [tags]);
+
   useEffect(() => {
     if (share) {
       setShareStatus(true);
@@ -69,32 +72,25 @@ const BookInfo: React.FC<BookInfoProps> = ({
       setShareStatus(false);
     }
     console.log("Share status: ", shareStatus);
-  }, [share]);
+  }, [share, shareStatus]);
 
   const toggleShare = async () => {
     try {
-      const response = await fetch(`/api/dreams/updateShare`, {
-        method: "POST", // Changed from GET to POST
+      await fetch(`/api/dreams/updateShare`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: url, tags: tags }), // Send current status to toggle
+        body: JSON.stringify({ url: url, tags: tags }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setShareStatus(!shareStatus); // Toggle only after successful API call
+      setShareStatus(!shareStatus);
     } catch (error) {
       console.error("Error updating share status:", error);
     }
   };
-  const handleTagChange = (
-    newTags: MultiValue<Tag>,
-    actionMeta: ActionMeta<Tag>
-  ) => {
+
+  const handleTagChange = (newTags: MultiValue<Tag>) => {
     if (newTags.length <= 5) {
       setTags(newTags as Tag[]);
       setMaxTags(false);
@@ -102,6 +98,7 @@ const BookInfo: React.FC<BookInfoProps> = ({
       setMaxTags(true);
     }
   };
+
   return (
     <>
       <div className="relative">
@@ -148,7 +145,7 @@ const BookInfo: React.FC<BookInfoProps> = ({
                   <DialogHeader>
                     <DialogTitle>Share To Community</DialogTitle>
                     <DialogDescription>
-                      Once you share it, you can't take it back.
+                      Once you share it, you cannot take it back.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
@@ -228,11 +225,8 @@ const BookInfo: React.FC<BookInfoProps> = ({
               </Dialog>
             ) : null}
             <Link href={"/dreams/" + url}>
-              {/* Book spine effect */}
               <div className="absolute left-0 w-6 h-full bg-slate-700 transform origin-left skew-y-12"></div>
-              {/* Book cover */}
               <div className="absolute w-full h-full bg-slate-800 rounded-r-lg shadow-xl">
-                {/* Cover image */}
                 <div className="w-full h-4/5 overflow-hidden rounded-tr-lg">
                   <Image
                     src={cover || "/api/placeholder/192/230"}
@@ -246,7 +240,6 @@ const BookInfo: React.FC<BookInfoProps> = ({
                     blurDataURL={`data:image/svg+xml;base64,...`}
                   />
                 </div>
-                {/* Book info */}
                 <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-slate-900 to-slate-900/80">
                   <h3 className="text-sm font-semibold text-slate-100 truncate">
                     {title}
@@ -254,7 +247,6 @@ const BookInfo: React.FC<BookInfoProps> = ({
                   <p className="text-xs text-slate-400 mt-1 truncate">
                     {subtitle}
                   </p>
-                  {/* Stats */}
                   <div className="flex gap-3 mt-2">
                     {stats?.likes !== undefined && (
                       <div className="flex items-center gap-1 text-slate-400">
@@ -269,6 +261,14 @@ const BookInfo: React.FC<BookInfoProps> = ({
                         <Eye className="w-3 h-3" />
                         <span className="text-xs">
                           {formatter.format(stats.views)}
+                        </span>
+                      </div>
+                    )}
+                    {stats?.comments !== undefined && (
+                      <div className="flex items-center gap-1 text-slate-400">
+                        <MessageCircle className="w-3 h-3" />
+                        <span className="text-xs">
+                          {formatter.format(stats.comments)}
                         </span>
                       </div>
                     )}

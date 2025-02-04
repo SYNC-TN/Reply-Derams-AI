@@ -38,7 +38,7 @@ const LikeButton = ({
     }); // Reset animation state after animation completes
 
     setTimeout(() => setIsAnimating(false), 300);
-  }, []);
+  }, [setLikeStatus]);
 
   const handleLikeClick = async () => {
     if (isUpdatingLike) return;

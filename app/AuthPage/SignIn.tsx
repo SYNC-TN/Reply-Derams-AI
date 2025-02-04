@@ -141,7 +141,7 @@ const SignIn: React.FC<SignInProps> = ({ onToggle }) => {
           )}
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-slate-400">Don't have an account? </span>
+            <span className="text-slate-400">Don&apos;t have an account? </span>
             <button
               type="button"
               onClick={onToggle}

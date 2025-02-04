@@ -11,12 +11,7 @@ import { useState } from "react";
 
 const DescriptionDream: React.FC = () => {
   const { description, setDescription } = useBookData();
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
+  const { transcript, resetTranscript } = useSpeechRecognition();
   const [test, setTest] = useState(true);
 
   useEffect(() => {
@@ -27,7 +22,7 @@ const DescriptionDream: React.FC = () => {
       setDescription(newDescription);
       resetTranscript();
     }
-  }, [transcript, setDescription, description]);
+  }, [transcript, setDescription, description, resetTranscript]);
 
   const record = (test: boolean) => {
     if (test) {

@@ -49,7 +49,7 @@ const ListTitles = [
 ] as const;
 
 const AllCategories = memo(() => {
-  const [allBooks, setAllBooks] = useState<CommunityBookProps[]>([]);
+  const [allBooks] = useState<CommunityBookProps[]>([]);
 
   const [selectedTab, setSelectedTab] = useState<string>("All");
   const categoriesToRender = selectedTab === "All" ? ListTitles : [selectedTab];

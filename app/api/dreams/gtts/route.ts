@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     // Create a new GTTS instance
-    const gtts: any = new Gtts(text, lang);
+    const gtts = new Gtts(text, lang);
 
     // Convert GTTS stream to Buffer
     const chunks: Array<Uint8Array> = [];

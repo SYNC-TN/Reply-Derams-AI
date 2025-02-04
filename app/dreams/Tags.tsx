@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useBookData } from "./BookData";
 import dreamTagSuggestions from "./dreamTagSuggestions";
-import Select, { MultiValue, ActionMeta } from "react-select";
+import Select, { MultiValue } from "react-select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface Tag {
@@ -15,10 +15,7 @@ const DreamTags = () => {
   const { tags, setTags } = useBookData();
   const [maxTags, setMaxTags] = useState(false);
 
-  const handleTagChange = (
-    newTags: MultiValue<Tag>,
-    actionMeta: ActionMeta<Tag>
-  ) => {
+  const handleTagChange = (newTags: MultiValue<Tag>) => {
     if (newTags.length <= 5) {
       setTags(newTags as Tag[]);
       setMaxTags(false);

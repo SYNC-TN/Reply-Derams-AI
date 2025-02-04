@@ -8,6 +8,7 @@ import useSound from "use-sound";
 interface Stats {
   likes?: number;
   views?: number;
+  comments?: number;
 }
 
 interface BookData {

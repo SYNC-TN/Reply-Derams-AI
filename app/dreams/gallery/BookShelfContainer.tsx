@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import BookShelf from "./BookShelf";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +17,13 @@ import GalleryLoadingState from "./GalleryLoadingState";
 interface Stats {
   likes?: number;
   views?: number;
+  comments?: number;
+}
+
+interface CoverData {
+  title: string;
+  subtitle: string;
+  coverImageUrl?: string;
 }
 
 interface Dream {
@@ -28,9 +34,9 @@ interface Dream {
   description: string;
   title: string;
   stats: Stats;
-  options: any[];
-  pages: any[];
-  coverData: any;
+  options: Record<string, unknown>[];
+  pages: Record<string, unknown>[];
+  coverData: CoverData;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -49,9 +55,7 @@ const BookShelfContainer: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
 
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
 
-  // New states for search and filter
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterState>({
     hasLikes: true,
@@ -59,56 +63,54 @@ const BookShelfContainer: React.FC = () => {
   });
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
-  const fetchBooks = async (currentPage: number) => {
-    if (!session) return;
+  const fetchBooks = useCallback(
+    async (currentPage: number) => {
+      if (!session) return;
 
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `/api/dreams/getAllBooks?page=${currentPage}&limit=5`
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log(data);
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `/api/dreams/getAllBooks?page=${currentPage}&limit=5`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
 
-      // Update books while removing duplicates based on a unique identifier
-      setBooks((prevBooks) => {
-        const uniqueBooks = [...prevBooks];
+        setBooks((prevBooks) => {
+          const uniqueBooks = [...prevBooks];
 
-        data.forEach((newBook: Dream) => {
-          // Check if book already exists based on some unique identifier
-          const existingBookIndex = uniqueBooks.findIndex(
-            (book) => book.url === newBook.url // Using URL as unique identifier
-          );
+          data.forEach((newBook: Dream) => {
+            const existingBookIndex = uniqueBooks.findIndex(
+              (book) => book.url === newBook.url
+            );
 
-          if (existingBookIndex === -1) {
-            // Book doesn't exist, add it
-            uniqueBooks.push(newBook);
-          } else {
-            // Book exists, update it with new data
-            uniqueBooks[existingBookIndex] = newBook;
-          }
+            if (existingBookIndex === -1) {
+              uniqueBooks.push(newBook);
+            } else {
+              uniqueBooks[existingBookIndex] = newBook;
+            }
+          });
+
+          return uniqueBooks;
         });
+        console.log("Fetched books:", data);
 
-        return uniqueBooks;
-      });
-      console.log("Fetched books:", data);
-
-      // Check if we've reached the end of books
-      setHasMore(data.length > 0);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch books");
-      console.error("Error fetching books:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setHasMore(data.length > 0);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch books");
+        console.error("Error fetching books:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [session]
+  );
 
   useEffect(() => {
     fetchBooks(page);
-  }, [session, page]);
+  }, [fetchBooks, page]);
 
   const loadMoreBooks = () => {
     if (hasMore && !loading) {
@@ -119,8 +121,7 @@ const BookShelfContainer: React.FC = () => {
   const filterAndSortBooks = (books: Dream[]) => {
     if (!books) return [];
 
-    // First apply search filter
-    let filteredBooks = books.filter((book) => {
+    const filteredBooks = books.filter((book) => {
       const matchesSearch =
         book.coverData.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.coverData.subtitle
@@ -129,7 +130,6 @@ const BookShelfContainer: React.FC = () => {
       return matchesSearch;
     });
 
-    // Then apply date sorting
     return filteredBooks.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
@@ -165,7 +165,6 @@ const BookShelfContainer: React.FC = () => {
         </Link>
       </div>
 
-      {/* Search and Filter Section */}
       <div className="flex items-center gap-4 mb-6">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
@@ -233,11 +232,11 @@ const BookShelfContainer: React.FC = () => {
           stats: {
             likes: dream.stats?.likes || 0,
             views: dream.stats?.views || 0,
+            comments: dream.stats?.comments || 0,
           },
         }))}
       />
 
-      {/* Load More Button */}
       {hasMore && books.length >= 5 && (
         <div className="flex justify-center mt-6">
           <Button

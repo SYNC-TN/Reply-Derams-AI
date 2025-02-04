@@ -1,13 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  Moon,
   BookOpen,
-  History,
   CreditCard,
   Settings,
   HelpCircle,
-  Star,
   LogOut,
   User,
   Users,
@@ -42,7 +39,6 @@ import { useSession, signOut } from "next-auth/react";
 import Logo from "@/app/dreams/Logo";
 
 import { usePathname } from "next/navigation";
-import { set } from "mongoose";
 
 const applicationItems = [
   {
@@ -88,12 +84,7 @@ export function AppSidebar() {
   const {
     state,
 
-    open,
     setOpen,
-    openMobile,
-    setOpenMobile,
-    isMobile,
-    toggleSidebar,
   } = useSidebar();
   const menuState = localStorage.getItem("menuState");
 
@@ -107,10 +98,10 @@ export function AppSidebar() {
     if (savedMenuState === "collapsed") {
       setOpen(false);
     }
-  }, []);
+  }, [setOpen]);
   useEffect(() => {
     localStorage.setItem("menuState", state);
-  }, [state]);
+  }, [state, setOpen]);
   document.addEventListener("DOMContentLoaded", () => {
     if (menuState === "collapsed") {
       setOpen(false);

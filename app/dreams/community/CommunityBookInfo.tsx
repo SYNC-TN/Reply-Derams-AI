@@ -1,15 +1,9 @@
 import React from "react";
-import { BookHeart, Eye, Share2, User, MessageCircle } from "lucide-react";
+import { BookHeart, Eye, User, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import type { CommunityBookProps, Author } from "./types";
-
-const defaultAuthor: Author = {
-  name: "Anonymous",
-  avatar: "https://i.ibb.co/9TN2nT1/rb-4707.png",
-  username: "Anonymous",
-};
+import type { CommunityBookProps } from "./types";
 
 const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   title,
@@ -19,13 +13,8 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   comments,
   stats,
   coverData,
-  author = defaultAuthor,
   createdAt,
 }) => {
-  const authorData: Author = {
-    ...defaultAuthor,
-    ...author,
-  };
   const [hovered, setHovered] = React.useState(false);
   const formatter = new Intl.NumberFormat("en", { notation: "compact" });
 

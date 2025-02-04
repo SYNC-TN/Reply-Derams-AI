@@ -43,9 +43,6 @@ export function BookDataProvider({ children }: { children: React.ReactNode }) {
   const [storyLength, setStoryLength] = useState("");
   const [perspective, setPerspective] = useState("");
   const [genre, setGenre] = useState("");
-  const [colorTheme, setColorTheme] = useState("");
-  const [imageStyleStrength, setImageStyleStrength] = useState(50);
-  const [imageResolution, setImageResolution] = useState("");
 
   useEffect(() => {
     console.log("Description:", description);

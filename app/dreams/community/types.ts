@@ -8,12 +8,6 @@ export interface BooksCategorie {
   Tab: string | undefined;
 }
 
-export interface Author {
-  name: string;
-  avatar?: string;
-  username: string;
-}
-
 export interface CommunityBookProps {
   title: string;
   profilePic?: string;
@@ -26,6 +20,5 @@ export interface CommunityBookProps {
     subtitle: string;
   };
   stats: Stats;
-  author: Author;
   createdAt: string;
 }

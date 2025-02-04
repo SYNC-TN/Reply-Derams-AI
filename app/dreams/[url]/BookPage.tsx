@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import "./BookPage.css";
-import { RotateCcwSquare, ArrowUpDown, ArrowLeftRight } from "lucide-react";
+import { ArrowUpDown, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 interface BookPageProps {
   text: string;
@@ -25,19 +25,8 @@ const BookPage: React.FC<BookPageProps> = ({
   );
 
   // Enhanced page styles with depth effect
-  const pageStyles = {
-    position: "relative",
-    width: "100%",
-    height: "100%",
-    transformStyle: "preserve-3d",
-    transformOrigin: "left center",
-  };
 
   // Dynamic shadow based on page position
-  const shadowIntensity = Math.abs((pageNumber / totalPages - 0.5) * 2);
-  useEffect(() => {
-    setFlipState(localStorage.getItem("flipState") === "true");
-  }, []);
 
   useEffect(() => {
     localStorage.setItem("flipState", flipState.toString());

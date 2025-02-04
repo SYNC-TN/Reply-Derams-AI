@@ -7,7 +7,7 @@ interface LogoProps {
 }
 
 const Logo = ({ test }: LogoProps) => {
-  const { state, setOpen } = useSidebar();
+  const { state } = useSidebar();
   const isTestTrue = test === "true";
 
   return (

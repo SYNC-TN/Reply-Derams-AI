@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
 
     // Find paginated dreams
-    let dreams = await DreamStory.find({
+    const dreams = await DreamStory.find({
       email: userEmail,
     })
       .skip(skip)
@@ -39,7 +39,9 @@ export async function GET(request: Request) {
         stats: {
           likes: dream.stats.likes.length,
           views: dream.stats.views,
+          comments: dream.comments.length,
         },
+
         coverData: dream.coverData,
         createdAt: dream.createdAt,
         updatedAt: dream.updatedAt,

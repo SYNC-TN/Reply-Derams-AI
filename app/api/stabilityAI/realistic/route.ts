@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60000; // 1 minute in milliseconds
@@ -25,10 +25,10 @@ async function wait(ms: number): Promise<void> {
 
 async function makeRequestWithRetry(
   url: string,
-  payload: any,
-  headers: any,
+  payload: Record<string, unknown>,
+  headers: Record<string, string>,
   retryCount = 0
-): Promise<any> {
+): Promise<AxiosResponse> {
   try {
     while (!canMakeRequest()) {
       console.log("Rate limit reached, waiting...");
@@ -44,7 +44,7 @@ async function makeRequestWithRetry(
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
 
@@ -131,7 +131,7 @@ export async function POST(req: Request) {
     throw new Error(
       `API returned unexpected response. Status: ${response.status}`
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error generating sketch:", error);
 
     if (axios.isAxiosError(error)) {
@@ -158,7 +158,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error: "Failed to generate sketch",
-        details: error.message,
+        details: (error as Error).message,
         status: 500,
       },
       { status: 500 }

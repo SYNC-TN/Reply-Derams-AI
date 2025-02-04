@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Sparkles, Tags } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import ArtStyle from "./ArtStyle";
 import AdvancedOptions from "./AdvancedOptions";
 import LanguageSelect from "./LanguageSelect";
@@ -65,8 +65,10 @@ interface Tag {
 const RATE_LIMIT_DELAY = 1000;
 const MAX_RETRIES = 3;
 function DreamFormContent({ onClose }: CreateDreamFormProps) {
-  const router = useRouter();
   const { toast } = useToast();
+  const stableToast = useCallback(toast, []);
+
+  const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [storyPages, setStoryPages] = useState<Page[]>([]);
@@ -98,41 +100,22 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
   useEffect(() => {
     if (isGenerating) {
       console.log("Toast :Your Story still generating!");
-      toast({
+      stableToast({
         title: "Your Story still generating!",
       });
     }
     if (progress === 100) {
-      toast({
+      stableToast({
         title: "Your Story has been created!",
       });
     }
-  }, [isGenerating]);
+  }, [isGenerating, progress, stableToast]);
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
-  const resizeImage = async (url: string, width: number, height: number) => {
-    const img = new Image();
-    img.src = url;
 
-    await new Promise((resolve) => {
-      img.onload = resolve;
-    });
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      throw new Error("Failed to create canvas context");
-    }
-
-    canvas.width = width;
-    canvas.height = height;
-    ctx.drawImage(img, 0, 0, width, height);
-
-    return canvas.toDataURL("image/jpeg");
-  };
   const generateSoundEffect = async (
-    description: String,
-    story: any,
+    description: string,
+    story: string,
     retryCount = 0
   ) => {
     if (!soundEffect) return ""; // Return empty string when sound effects are disabled
@@ -329,21 +312,23 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       }
 
       setStoryPages(parsedPages);
-      const storyString: any = parsedPages.map((page) => page.text).join(" ");
+      const storyString: string = parsedPages
+        .map((page) => page.text)
+        .join(" ");
 
       // Generate page content sequentially with proper progress tracking
       const generatedPages: GeneratedPage[] = [];
-      const totalSteps = parsedPages.length;
+      const totalSteps = storyPages.length;
 
-      for (let i = 0; i < parsedPages.length; i++) {
+      for (let i = 0; i < storyPages.length; i++) {
         // Generate image and sound effect concurrently for each page
         const [imageUrl, pageSoundEffect] = await Promise.all([
-          generateImage(parsedPages[i].imagePrompt),
-          generateSoundEffect(parsedPages[i].text, storyString),
+          generateImage(storyPages[i].imagePrompt),
+          generateSoundEffect(storyPages[i].text, storyString),
         ]);
 
         generatedPages.push({
-          text: parsedPages[i].text,
+          text: storyPages[i].text,
           imageUrl,
           soundEffect: pageSoundEffect, // This will be either a URL or empty string
         });
@@ -360,7 +345,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         soundEffect: soundEffect || false,
         tags: tags || [],
         pages: generatedPages,
-        coverData: finalCoverData,
+        coverData: coverData as CoverData,
         bookTone: bookTone || "neutral",
         storyLength: storyLength || "medium",
         perspective: perspective || "first-person",

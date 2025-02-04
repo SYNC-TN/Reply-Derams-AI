@@ -17,21 +17,9 @@ const BookNavigation: React.FC<BookNavigationProps> = ({
   isFlipping,
   isReading,
 }) => {
-  const buttonStyles = {
-    base: "pointer-events-auto p-4 rounded-full backdrop-blur-md transition-all duration-300",
-    enabled: "bg-white/10 hover:bg-white/20 border border-white/30 shadow-lg",
-    disabled: "opacity-50 cursor-not-allowed",
-  };
   const isPrevDisabled = currentPage === 0 || isFlipping || isReading;
   const isNextDisabled =
     currentPage === totalPages - 1 || isFlipping || isReading;
-  const iconStyles = "w-6 h-6 text-white";
-
-  const buttonVariants = {
-    initial: { scale: 1 },
-    hover: { scale: 1.1 },
-    tap: { scale: 0.9 },
-  };
 
   return (
     <>

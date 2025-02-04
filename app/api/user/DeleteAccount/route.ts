@@ -11,7 +11,6 @@ export async function DELETE(request: NextRequest) {
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
     });
-
     // Check if the user is authenticated
     if (!token) {
       return NextResponse.json(
@@ -44,6 +43,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: "Account deleted" });
   } catch (error) {
+    console.error("Error deleting account:", error);
     return NextResponse.json(
       { error: "Failed to delete account" },
       { status: 500 }

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Moon, Sparkles, BookOpen, Camera, Share, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-
+import Image from "next/image";
 import GenreShowcase from "./GenreShowcase";
 import Link from "next/link";
 import {
@@ -111,9 +111,11 @@ const HomePage = () => {
           <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a192f]/80 backdrop-blur-sm px-6 py-4">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
               <div className="flex items-center space-x-3 logo w-auto h-12">
-                <img
+                <Image
                   src="/logo.png"
-                  className="h-12 w-12 transition-transform transform scale-150 mt-2"
+                  width={48}
+                  height={48}
+                  className="transition-transform transform scale-150 mt-2"
                   alt="ReplayDreams Logo"
                 />
                 <span className="text-3xl font-extrabold tracking-tight max-md:text-xl">

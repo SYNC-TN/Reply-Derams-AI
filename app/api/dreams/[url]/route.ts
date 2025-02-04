@@ -5,6 +5,10 @@ import { DreamStory } from "@/app/models/DreamStory";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { User } from "@/app/models/User";
+interface LikeProps {
+  username: string;
+  id: string;
+}
 export async function GET(
   request: Request,
   { params }: { params: { url: string } }
@@ -22,7 +26,7 @@ export async function GET(
     const isOwner = userEmail === dream.email;
     const nbLikes = dream.stats.likes.length;
     const isAlreadyLiking = dream.stats.likes.some(
-      (like: any) => like.id.toString() === user._id.toString()
+      (like: LikeProps) => like.id.toString() === user._id.toString()
     );
     if (!dream) {
       return NextResponse.json({ error: "Dream not found" }, { status: 404 });

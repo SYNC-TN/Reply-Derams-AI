@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useEffect } from "react";
 import { AlertCircle, KeyRound } from "lucide-react";
 import { KeyIcon } from "lucide-react";
 import {
@@ -32,24 +30,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-const page = () => {
-  const { data: session, status, update } = useSession();
-  const [username, setUsername] = useState(session?.user?.name ?? "");
-  const [isChanged, setIsChanged] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [passError, setPassError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [provider, setProvider] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [repeatNewPassword, setRepeatNewPassword] = useState("");
-  useEffect(() => {
+
+const SettingsPage: React.FC = () => {
+  const { data: session, update } = useSession();
+  const [username, setUsername] = React.useState(session?.user?.name ?? "");
+  const [isChanged, setIsChanged] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [passError, setPassError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+  const [provider, setProvider] = React.useState(false);
+  const [oldPassword, setOldPassword] = React.useState("");
+  const [newPassword, setNewPassword] = React.useState("");
+  const [repeatNewPassword, setRepeatNewPassword] = React.useState("");
+
+  React.useEffect(() => {
     if (session?.user?.name) {
       setUsername(session.user.name);
-      setIsChanged(false); // Reset changed state when session updates
+      setIsChanged(false);
     }
   }, [session?.user?.name]);
-  useEffect(() => {
+
+  React.useEffect(() => {
     const check = async () => {
       try {
         const response = await fetch("/api/user/CheckProvider", {
@@ -65,7 +66,6 @@ const page = () => {
 
         const data = await response.json();
         setProvider(data.isCredentialsProvider);
-        console.log("provider:", provider);
       } catch (error) {
         console.error("Error checking provider:", error);
       }
@@ -73,11 +73,13 @@ const page = () => {
 
     check();
   }, []);
-  useEffect(() => {
+
+  React.useEffect(() => {
     console.log("old password :", oldPassword);
     console.log("new password: ", newPassword);
     console.log("repeat new password :", repeatNewPassword);
   }, [newPassword, oldPassword, repeatNewPassword]);
+
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUsername = e.target.value;
 
@@ -89,14 +91,17 @@ const page = () => {
     setUsername(newUsername);
     setIsChanged(newUsername.trim() !== session?.user?.name);
   };
+
   const handleOldPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     const oldPassword = e.target.value;
     setOldPassword(oldPassword);
   };
+
   const handleNewPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
     setNewPassword(newPassword);
   };
+
   const handleDeleteAccount = async () => {
     try {
       const response = await fetch("/api/user/DeleteAccount", {
@@ -109,23 +114,18 @@ const page = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Sign out the user after successful deletion
         await signOut({ callbackUrl: "/" });
       } else {
         console.error("Failed to delete account:", data.error);
-        // Show error to user
       }
     } catch (error) {
       console.error("Error deleting account:", error);
-      // Show error to user
     }
   };
 
   const handleEditPassword = async () => {
-    // Reset any previous errors
     setPassError(null);
 
-    // Validate passwords
     if (newPassword !== repeatNewPassword) {
       setPassError("Passwords do not match");
       return;
@@ -154,16 +154,12 @@ const page = () => {
         return;
       }
       setSuccess("Password changed successfully");
-
-      // Password changed successfully
-      // You might want to add a success state or close the dialog
-      console.log("Password changed successfully");
     } catch (error) {
-      // Network or other errors
       console.error("Error changing password:", error);
       setPassError("An unexpected error occurred");
     }
   };
+
   const handleSubmit = async () => {
     try {
       const response = await fetch("/api/user/ChangeUsername", {
@@ -178,7 +174,6 @@ const page = () => {
 
       if (response.ok) {
         console.log("Username updated successfully");
-        // Update the session with the new data
         await update({
           ...session,
           user: {
@@ -482,4 +477,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default SettingsPage;

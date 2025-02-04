@@ -16,7 +16,7 @@ interface UserData {
   FollowersCount: number;
   FollowingCount: number;
   isOwner: boolean;
-  collection: any[];
+  collection: any;
   DreamsCount: number;
 }
 

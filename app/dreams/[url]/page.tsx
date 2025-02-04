@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import BookPageContainer from "./BookPageContainer";
+import Image from "next/image";
 import LoadingState from "./LoadingState";
 import { notFound } from "next/navigation";
 import LikeButton from "./LikeButton";
@@ -124,10 +125,13 @@ export default function DreamBookPage() {
         {/* Background Image */}
         {book.coverData?.coverImageUrl && (
           <div className="absolute inset-0 ">
-            <img
+            <Image
               src={book.coverData.coverImageUrl}
               alt="Dream Cover"
-              className="w-full h-full object-cover object-center opacity-30"
+              layout="fill"
+              objectFit="cover"
+              objectPosition="center"
+              className="opacity-30"
               style={{
                 filter: "brightness(0.7) contrast(1.1)",
               }}

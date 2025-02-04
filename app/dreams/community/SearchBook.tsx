@@ -3,19 +3,14 @@ import { BookHeart, Eye, User } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-import type { CommunityBookProps, Author } from "./types";
-const defaultAuthor: Author = {
-  name: "Anonymous",
-  avatar: "https://i.ibb.co/9TN2nT1/rb-4707.png",
-  username: "username",
-};
+import type { CommunityBookProps } from "./types";
+
 const SearchResultCard: React.FC<CommunityBookProps> = ({
-  title,
   username,
   url,
   stats,
+  profilePic,
   coverData,
-  author = defaultAuthor, // Provide default value
   createdAt,
 }) => {
   return (
@@ -40,7 +35,7 @@ const SearchResultCard: React.FC<CommunityBookProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <Avatar className="w-6 h-6">
-                <AvatarImage src={author.avatar} />
+                <AvatarImage src={profilePic} />
                 <AvatarFallback>
                   <User className="w-3 h-3" />
                 </AvatarFallback>
