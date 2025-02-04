@@ -5,10 +5,7 @@ import { useParams } from "next/navigation";
 import BookPageContainer from "./BookPageContainer";
 import LoadingState from "./LoadingState";
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
 import LikeButton from "./LikeButton";
-import { set } from "mongoose";
 import CommentsSection from "./CommentsSection";
 interface DreamPage {
   nb: number;

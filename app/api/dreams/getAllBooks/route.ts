@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
 import { authOptions } from "@/lib/auth";
-import { decodeEmail } from "@/lib/jwt";
 
 export async function GET(request: Request) {
   try {

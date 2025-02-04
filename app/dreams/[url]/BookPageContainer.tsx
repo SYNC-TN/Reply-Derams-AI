@@ -1,18 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  Pause,
-  StopCircle,
-} from "lucide-react";
+import { Play, Pause, StopCircle } from "lucide-react";
 import BookPage from "./BookPage";
 import useSound from "use-sound";
 import BookNavigation from "./BookNavigation";
 import BackgroundAudioSlider from "./BackgroundAudioSlider";
-import CommentsSection from "./CommentsSection";
 
 interface DreamBookContainerProps {
   book: {

@@ -1,17 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  MoreHorizontal,
-  Mail,
-  Link as LinkIcon,
-  Edit,
-  Book,
-  BookCheck,
-  Share2,
-  BookOpen,
-  Image,
-  Camera,
-  Cross,
-} from "lucide-react";
+import { Edit, Book, BookCheck, Camera, Cross } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";

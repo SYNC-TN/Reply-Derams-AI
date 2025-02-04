@@ -15,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import dreamTagSuggestions from "../dreamTagSuggestions";
 import Select, { MultiValue, ActionMeta } from "react-select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";

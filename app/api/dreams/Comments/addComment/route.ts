@@ -4,7 +4,6 @@ import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
 import { User } from "@/app/models/User";
 import { authOptions } from "@/lib/auth";
-import mongoose from "mongoose";
 
 export async function POST(request: Request) {
   try {

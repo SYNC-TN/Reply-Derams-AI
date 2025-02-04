@@ -1,8 +1,5 @@
 // models/User.ts
-import { user } from "elevenlabs/api";
 import mongoose from "mongoose";
-import { unique } from "next/dist/build/utils";
-import { type } from "os";
 
 const UserSchema = new mongoose.Schema(
   {

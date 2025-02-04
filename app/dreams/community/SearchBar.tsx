@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import type { BooksCategorie, CommunityBookProps } from "./types";
+import type { CommunityBookProps } from "./types";
 import SearchResults from "./SearchBook";
-import { set } from "mongoose";
 interface SearchBarProps {
   books: CommunityBookProps[];
 }

@@ -8,7 +8,7 @@ import type { CommunityBookProps, Author } from "./types";
 const defaultAuthor: Author = {
   name: "Anonymous",
   avatar: "https://i.ibb.co/9TN2nT1/rb-4707.png",
-  username: "username",
+  username: "Anonymous",
 };
 
 const CommunityBookInfo: React.FC<CommunityBookProps> = ({
