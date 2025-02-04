@@ -12,6 +12,7 @@ import BookPage from "./BookPage";
 import useSound from "use-sound";
 import BookNavigation from "./BookNavigation";
 import BackgroundAudioSlider from "./BackgroundAudioSlider";
+import CommentsSection from "./CommentsSection";
 
 interface DreamBookContainerProps {
   book: {

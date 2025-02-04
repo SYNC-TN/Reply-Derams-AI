@@ -109,6 +109,7 @@ export async function POST(req: Request) {
         likes: [],
         views: 0,
       },
+      comments: [],
       options: [
         {
           artStyle: body.artStyle || "realistic",

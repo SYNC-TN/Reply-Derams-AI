@@ -1,3 +1,4 @@
+//page.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import LikeButton from "./LikeButton";
 import { set } from "mongoose";
+import CommentsSection from "./CommentsSection";
 interface DreamPage {
   nb: number;
   text: string;
@@ -20,6 +22,12 @@ interface DreamBook {
   description: string;
   options: { artStyle: string; language: string }[];
   pages: DreamPage[];
+  comments: {
+    username: string;
+    text: string;
+    image: string;
+    profileName: string;
+  }[];
   share: boolean;
   coverData?: {
     coverImagePrompt: string;
@@ -204,26 +212,28 @@ export default function DreamBookPage() {
       </div>
 
       {/* Book pages */}
-      {!isOwner && (
-        <>
-          <LikeButton
-            setLikeStatus={setIsLiked}
-            url={params.url}
-            nbLikes={nbLikes}
-            setNbLikes={setNbLikes}
-            initialLikeStatus={isAlreadyLiking}
+      <div className="relative flex flex-row max-sm:flex-col items-center gap-8">
+        <div className="relative aspect-[3/4] md:aspect-[16/10] w-full max-md:pb-20">
+          <BookPageContainer
+            book={book}
+            lang={book.options[0].language.toLocaleLowerCase()}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
           />
-        </>
-      )}
-
-      <div className="relative aspect-[3/4] md:aspect-[16/10] w-full max-md:pb-20">
-        <BookPageContainer
-          book={book}
-          lang={book.options[0].language.toLocaleLowerCase()}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+        </div>
+        {!isOwner && (
+          <>
+            <LikeButton
+              setLikeStatus={setIsLiked}
+              url={params.url}
+              nbLikes={nbLikes}
+              setNbLikes={setNbLikes}
+              initialLikeStatus={isAlreadyLiking}
+            />
+          </>
+        )}
       </div>
+      <CommentsSection />
     </div>
   );
 }

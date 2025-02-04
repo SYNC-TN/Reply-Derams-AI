@@ -18,6 +18,7 @@ export interface CommunityBookProps {
   title: string;
   profilePic?: string;
   username: string;
+  comments?: number;
   url: string;
   coverData: {
     coverImageUrl: string;

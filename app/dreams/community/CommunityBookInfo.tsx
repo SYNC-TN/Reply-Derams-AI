@@ -1,5 +1,5 @@
 import React from "react";
-import { BookHeart, Eye, Share2, User } from "lucide-react";
+import { BookHeart, Eye, Share2, User, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
@@ -16,6 +16,7 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
   username,
   url,
   profilePic,
+  comments,
   stats,
   coverData,
   author = defaultAuthor,
@@ -116,6 +117,14 @@ const CommunityBookInfo: React.FC<CommunityBookProps> = ({
                       <Eye className="w-3 h-3" />
                       <span className="text-xs">
                         {formatter.format(stats.views)}
+                      </span>
+                    </div>
+                  )}
+                  {comments !== undefined && (
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <MessageCircle className="w-3 h-3" />
+                      <span className="text-xs">
+                        {formatter.format(comments)}
                       </span>
                     </div>
                   )}

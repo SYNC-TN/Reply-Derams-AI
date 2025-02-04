@@ -24,11 +24,7 @@ interface BookShelfProps {
   books: BookData[];
 }
 
-const BookShelf: React.FC<BookShelfProps> = ({
-  title,
-  books,
-  profileAcces,
-}) => {
+const BookShelf: React.FC<BookShelfProps> = ({ title, books }) => {
   const BookOpenSfx = "/book-drop.mp3";
   const [play] = useSound(BookOpenSfx, { volume: 0.05 });
   return (
@@ -55,7 +51,7 @@ const BookShelf: React.FC<BookShelfProps> = ({
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-4"
                 >
-                  <Book info={book} profileAcces={true} />
+                  <Book info={book} />
                 </motion.div>
               </div>
             ))}

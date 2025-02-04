@@ -6,7 +6,8 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useEffect } from "react";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, KeyRound } from "lucide-react";
+import { KeyIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,21 +21,66 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Circle, Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
-
+import { ShieldCheck } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 const page = () => {
   const { data: session, status, update } = useSession();
   const [username, setUsername] = useState(session?.user?.name ?? "");
   const [isChanged, setIsChanged] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [passError, setPassError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [provider, setProvider] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [repeatNewPassword, setRepeatNewPassword] = useState("");
   useEffect(() => {
     if (session?.user?.name) {
       setUsername(session.user.name);
       setIsChanged(false); // Reset changed state when session updates
     }
   }, [session?.user?.name]);
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const response = await fetch("/api/user/CheckProvider", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
+        if (!response.ok) {
+          throw new Error("Failed to fetch provider information");
+        }
+
+        const data = await response.json();
+        setProvider(data.isCredentialsProvider);
+        console.log("provider:", provider);
+      } catch (error) {
+        console.error("Error checking provider:", error);
+      }
+    };
+
+    check();
+  }, []);
+  useEffect(() => {
+    console.log("old password :", oldPassword);
+    console.log("new password: ", newPassword);
+    console.log("repeat new password :", repeatNewPassword);
+  }, [newPassword, oldPassword, repeatNewPassword]);
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUsername = e.target.value;
+
     setError(null);
     if (newUsername.length > 20) {
       setError("Username must be less than 20 characters");
@@ -42,6 +88,14 @@ const page = () => {
     }
     setUsername(newUsername);
     setIsChanged(newUsername.trim() !== session?.user?.name);
+  };
+  const handleOldPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const oldPassword = e.target.value;
+    setOldPassword(oldPassword);
+  };
+  const handleNewPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setNewPassword(newPassword);
   };
   const handleDeleteAccount = async () => {
     try {
@@ -67,6 +121,49 @@ const page = () => {
     }
   };
 
+  const handleEditPassword = async () => {
+    // Reset any previous errors
+    setPassError(null);
+
+    // Validate passwords
+    if (newPassword !== repeatNewPassword) {
+      setPassError("Passwords do not match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPassError("Password must be at least 8 characters long");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/user/ChangePassword", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setPassError(errorData.error || "Failed to change password");
+        return;
+      }
+      setSuccess("Password changed successfully");
+
+      // Password changed successfully
+      // You might want to add a success state or close the dialog
+      console.log("Password changed successfully");
+    } catch (error) {
+      // Network or other errors
+      console.error("Error changing password:", error);
+      setPassError("An unexpected error occurred");
+    }
+  };
   const handleSubmit = async () => {
     try {
       const response = await fetch("/api/user/ChangeUsername", {
@@ -143,6 +240,148 @@ const page = () => {
                 </Button>
               </div>
             </div>
+            {/*edit password section*/}
+
+            {provider ? (
+              <div className="w-full">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 bg-transparent hover:bg-slate-800 text-slate-200 border border-slate-700 h-14"
+                    >
+                      <KeyRound className="w-4 h-4" />
+                      Edit Password
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[700px] bg-slate-900 border-slate-800">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                        <KeyRound className="w-6 h-6 text-blue-500" />
+                        Change Password
+                      </DialogTitle>
+                      <DialogDescription className="text-slate-400 mt-2">
+                        Secure your account with a strong, unique password
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid md:grid-cols-2 gap-8 py-4">
+                      {/* Left Side - Password Guidelines */}
+                      <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <ShieldCheck className="w-6 h-6 text-green-500" />
+                            <h3 className="text-lg font-semibold text-white">
+                              Password Guidelines
+                            </h3>
+                          </div>
+                          <ul className="text-slate-400 space-y-2 text-sm">
+                            <li className="flex items-start gap-2">
+                              <KeyIcon className="w-4 h-4 text-blue-400 mt-1 flex-shrink-0" />
+                              <span>At least 8 characters long</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <KeyIcon className="w-4 h-4 text-blue-400 mt-1 flex-shrink-0" />
+                              <span>
+                                Include a mix of uppercase and lowercase letters
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <KeyIcon className="w-4 h-4 text-blue-400 mt-1 flex-shrink-0" />
+                              <span>Include at least one number</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <KeyIcon className="w-4 h-4 text-blue-400 mt-1 flex-shrink-0" />
+                              <span>
+                                Include at least one special character
+                              </span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <KeyIcon className="w-4 h-4 text-blue-400 mt-1 flex-shrink-0" />
+                              <span>
+                                Avoid using common words or personal information
+                              </span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      {/* Right Side - Password Input Fields */}
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label
+                            htmlFor="oldPassword"
+                            className="text-right text-white"
+                          >
+                            Current Password
+                          </Label>
+                          <Input
+                            type="password"
+                            id="oldPassword"
+                            className="col-span-3 bg-slate-800 border-slate-700 text-white"
+                            placeholder="Enter current password"
+                            onChange={handleOldPassword}
+                          />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label
+                            htmlFor="newPassword"
+                            className="text-right text-white"
+                          >
+                            New Password
+                          </Label>
+                          <Input
+                            type="password"
+                            id="newPassword"
+                            className="col-span-3 bg-slate-800 border-slate-700 text-white"
+                            placeholder="Enter new password"
+                            onChange={handleNewPassword}
+                          />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label
+                            htmlFor="confirmPassword"
+                            className="text-right text-white"
+                          >
+                            Confirm Password
+                          </Label>
+                          <Input
+                            type="password"
+                            id="confirmPassword"
+                            className="col-span-3 bg-slate-800 border-slate-700 text-white"
+                            placeholder="Confirm new password"
+                            onChange={(e) =>
+                              setRepeatNewPassword(e.target.value)
+                            }
+                          />
+                        </div>
+
+                        {passError != null && (
+                          <div className="text-red-500 text-sm mt-2 text-center">
+                            {passError}
+                          </div>
+                        )}
+                        {success != null && (
+                          <div className="text-green-500 text-sm mt-2 text-center">
+                            {success}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <DialogFooter className="mt-4">
+                      <Button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={handleEditPassword}
+                      >
+                        Save Password
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            ) : null}
           </div>
         </div>
 

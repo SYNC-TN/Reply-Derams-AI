@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import connectDB from "@/lib/mongodb";
 import { User } from "@/app/models/User";
-import { encodeEmail, decodeEmail } from "@/lib/jwt";
 
 export async function POST(request: Request) {
   try {
@@ -35,10 +34,10 @@ export async function POST(request: Request) {
       });
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return NextResponse.json({
         success: false,
-        message: "Password must be at least 6 characters long",
+        message: "Password must be at least 8 characters long",
       });
     }
 

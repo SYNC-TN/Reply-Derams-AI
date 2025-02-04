@@ -77,11 +77,14 @@ const LikeButton = ({
   return (
     <>
       <div
-        className=" absolute
+        className=" relative
         right-10
-        bottom-[calc(35%-2rem)] grid grid-flow-col  items-center gap-2
+         grid grid-flow-col  items-center gap-2
         max-sm:bottom-2
-        max-sm:mb-3
+        mb-[20%]
+        max-sm:absolute
+        
+        max-sm:mb-0
         
         z-50
         "

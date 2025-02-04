@@ -4,6 +4,7 @@ import connectDB from "@/lib/mongodb";
 import { DreamStory } from "@/app/models/DreamStory";
 import { User } from "@/app/models/User";
 import { authOptions } from "@/lib/auth";
+import { comment } from "postcss";
 
 export async function GET(request: Request) {
   try {
@@ -53,6 +54,7 @@ export async function GET(request: Request) {
         $addFields: {
           "stats.likes": { $ifNull: [{ $size: "$stats.likes" }, 0] },
           "stats.views": "$stats.views",
+          comments: { $ifNull: [{ $size: "$comments" }, 0] },
         },
       },
       {
@@ -64,6 +66,7 @@ export async function GET(request: Request) {
           name: 1,
           title: 1,
           stats: 1,
+          comments: 1,
           coverData: 1,
           createdAt: 1,
           updatedAt: 1,

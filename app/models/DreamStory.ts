@@ -105,6 +105,45 @@ const DreamStorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    comments: [
+      {
+        username: {
+          type: String,
+          required: true,
+        },
+        id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        content: {
+          type: String,
+          required: true,
+        },
+        image: {
+          type: String,
+          required: true,
+        },
+        profileName: {
+          type: String,
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+        parentId: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: null,
+        },
+        ancestors: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Comment",
+          },
+        ],
+      },
+    ],
 
     stats: {
       likes: [

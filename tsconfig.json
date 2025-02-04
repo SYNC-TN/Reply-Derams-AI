@@ -31,7 +31,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dreams.ts",
-    "types/**/*.d.ts"
+    "types/**/*.d.ts",
+    "app/dreams/community/SearchResultContainer"
   ],
   "exclude": ["node_modules"]
 }
