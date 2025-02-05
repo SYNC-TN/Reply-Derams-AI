@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect } from "react";
 import { useSwiper } from "swiper/react";
 import { ChevronRight, ChevronLeft } from "lucide-react";

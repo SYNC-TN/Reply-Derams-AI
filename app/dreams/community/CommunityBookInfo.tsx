@@ -1,3 +1,5 @@
+//CommunityBookInfo.tsx
+"use client";
 import React from "react";
 import { BookHeart, Eye, User, MessageCircle } from "lucide-react";
 import Link from "next/link";

@@ -1,3 +1,4 @@
+// BookShelfContainer.tsx
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import BookShelf from "./BookShelf";
@@ -14,40 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Search, ChevronDown, CalendarPlus } from "lucide-react";
 import GalleryLoadingState from "./GalleryLoadingState";
 
-interface Stats {
-  likes?: number;
-  views?: number;
-  comments?: number;
-}
-
-interface CoverData {
-  title: string;
-  subtitle: string;
-  coverImageUrl?: string;
-}
-
-interface Dream {
-  User: string;
-  url: string;
-  name: string;
-  share: boolean;
-  description: string;
-  title: string;
-  stats: Stats;
-  options: Record<string, unknown>[];
-  pages: Record<string, unknown>[];
-  coverData: CoverData;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface FilterState {
-  hasLikes: boolean;
-  hasViews: boolean;
-}
-
 const BookShelfContainer: React.FC = () => {
+  const [isMounted, setIsMounted] = useState(false);
   const [books, setBooks] = useState<Dream[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +32,11 @@ const BookShelfContainer: React.FC = () => {
   });
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
+  // Add useEffect for client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const fetchBooks = useCallback(
     async (currentPage: number) => {
       if (!session) return;
@@ -76,31 +50,25 @@ const BookShelfContainer: React.FC = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data);
 
         setBooks((prevBooks) => {
           const uniqueBooks = [...prevBooks];
-
           data.forEach((newBook: Dream) => {
             const existingBookIndex = uniqueBooks.findIndex(
               (book) => book.url === newBook.url
             );
-
             if (existingBookIndex === -1) {
               uniqueBooks.push(newBook);
             } else {
               uniqueBooks[existingBookIndex] = newBook;
             }
           });
-
           return uniqueBooks;
         });
-        console.log("Fetched books:", data);
 
         setHasMore(data.length > 0);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch books");
-        console.error("Error fetching books:", err);
       } finally {
         setLoading(false);
       }
@@ -109,9 +77,17 @@ const BookShelfContainer: React.FC = () => {
   );
 
   useEffect(() => {
-    fetchBooks(page);
-  }, [fetchBooks, page]);
+    if (isMounted) {
+      fetchBooks(page);
+    }
+  }, [fetchBooks, page, isMounted]);
 
+  // Don't render anything until mounted
+  if (!isMounted) {
+    return null;
+  }
+
+  // Rest of your component logic remains the same...
   const loadMoreBooks = () => {
     if (hasMore && !loading) {
       setPage((prevPage) => prevPage + 1);
@@ -146,6 +122,14 @@ const BookShelfContainer: React.FC = () => {
   }
 
   const filteredAndSortedBooks = filterAndSortBooks(books);
+
+  if (loading && books.length === 0) {
+    return <GalleryLoadingState />;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">

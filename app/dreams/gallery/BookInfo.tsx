@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { BookHeart, Eye, MessageCircle } from "lucide-react";
 import Link from "next/link";
@@ -22,7 +23,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { useSession } from "next-auth/react";
 
 interface Tag {
   id: number;
@@ -58,7 +58,6 @@ const BookInfo: React.FC<BookInfoProps> = ({
   const [shareStatus, setShareStatus] = useState(false);
   const [tags, setTags] = useState<Tag[]>([]);
   const [maxTags, setMaxTags] = useState(false);
-  const { data: session } = useSession();
   const formatter = new Intl.NumberFormat("en", { notation: "compact" });
 
   useEffect(() => {

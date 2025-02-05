@@ -1,8 +1,7 @@
-import React from "react";
-import BookShelfContainer from "./BookShelfContainer";
+// /app/dreams/gallery/page.tsx
+import ClientGallery from "./ClientGallery";
+export const dynamic = "force-dynamic";
 
-const page = () => {
-  return <BookShelfContainer />;
-};
-
-export default page;
+export default function GalleryPage() {
+  return <ClientGallery />;
+}

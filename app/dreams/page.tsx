@@ -2,6 +2,7 @@ import React from "react";
 import { Star } from "lucide-react";
 import "./dreams.css";
 import Create from "../../components/create";
+export const dynamic = "force-dynamic";
 
 export default function Dreams() {
   return (

@@ -1,4 +1,6 @@
 // BookShelf component
+
+"use client";
 import Book from "./Book";
 import { BookIcon } from "lucide-react";
 import { motion } from "framer-motion";

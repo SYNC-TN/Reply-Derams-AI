@@ -66,7 +66,7 @@ const RATE_LIMIT_DELAY = 1000;
 const MAX_RETRIES = 3;
 function DreamFormContent({ onClose }: CreateDreamFormProps) {
   const { toast } = useToast();
-  const stableToast = useCallback(toast, []);
+  const stableToast = useCallback(toast, [toast]);
 
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -109,7 +109,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         title: "Your Story has been created!",
       });
     }
-  }, [isGenerating, progress, stableToast]);
+  }, [isGenerating, progress, stableToast, toast]);
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 

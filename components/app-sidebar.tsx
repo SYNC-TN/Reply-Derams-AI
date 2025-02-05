@@ -37,8 +37,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession, signOut } from "next-auth/react";
 import Logo from "@/app/dreams/Logo";
-
 import { usePathname } from "next/navigation";
+export const dynamic = "force-dynamic";
 
 const applicationItems = [
   {
@@ -98,10 +98,10 @@ export function AppSidebar() {
     if (savedMenuState === "collapsed") {
       setOpen(false);
     }
-  }, [setOpen]);
+  }, []);
   useEffect(() => {
     localStorage.setItem("menuState", state);
-  }, [state, setOpen]);
+  }, [state]);
   document.addEventListener("DOMContentLoaded", () => {
     if (menuState === "collapsed") {
       setOpen(false);

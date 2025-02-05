@@ -26,7 +26,8 @@ export default function DreamBookContainer({
   const [direction, setDirection] = useState<"next" | "prev">("next");
   const [isReading, setIsReading] = useState(false);
   const [autoTurnEnabled, setAutoTurnEnabled] = useState(
-    localStorage.getItem("isReading") === "true"
+    typeof window !== "undefined" &&
+      localStorage.getItem("isReading") === "true"
   );
   const [playFlipSound] = useSound("/page-flip.mp3", { volume: 0.3 });
   const [language, setLanguage] = useState("en");

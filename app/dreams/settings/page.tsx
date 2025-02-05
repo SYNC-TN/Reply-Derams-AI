@@ -1,11 +1,18 @@
 "use client";
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, KeyRound } from "lucide-react";
-import { KeyIcon } from "lucide-react";
+import {
+  AlertCircle,
+  KeyRound,
+  KeyIcon,
+  Circle,
+  Trash2,
+  ShieldCheck,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Circle, Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { ShieldCheck } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -30,26 +35,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+export const dynamic = "force-dynamic";
 
-const SettingsPage: React.FC = () => {
-  const { data: session, update } = useSession();
-  const [username, setUsername] = React.useState(session?.user?.name ?? "");
-  const [isChanged, setIsChanged] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+import ChangeUsername from "./ChangeUsername";
+const SettingsPage = () => {
+  // Initialize state with undefined for SSR compatibility
+
   const [passError, setPassError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [provider, setProvider] = React.useState(false);
   const [oldPassword, setOldPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const [repeatNewPassword, setRepeatNewPassword] = React.useState("");
-
+  const [isClient, setIsClient] = React.useState(false);
   React.useEffect(() => {
-    if (session?.user?.name) {
-      setUsername(session.user.name);
-      setIsChanged(false);
-    }
-  }, [session?.user?.name]);
+    setIsClient(true);
+  }, []);
 
+  // Check provider
   React.useEffect(() => {
     const check = async () => {
       try {
@@ -71,26 +74,16 @@ const SettingsPage: React.FC = () => {
       }
     };
 
-    check();
-  }, []);
+    if (isClient) {
+      check();
+    }
+  }, [isClient]);
 
   React.useEffect(() => {
     console.log("old password :", oldPassword);
     console.log("new password: ", newPassword);
     console.log("repeat new password :", repeatNewPassword);
   }, [newPassword, oldPassword, repeatNewPassword]);
-
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUsername = e.target.value;
-
-    setError(null);
-    if (newUsername.length > 20) {
-      setError("Username must be less than 20 characters");
-      return;
-    }
-    setUsername(newUsername);
-    setIsChanged(newUsername.trim() !== session?.user?.name);
-  };
 
   const handleOldPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     const oldPassword = e.target.value;
@@ -125,6 +118,7 @@ const SettingsPage: React.FC = () => {
 
   const handleEditPassword = async () => {
     setPassError(null);
+    setSuccess(null);
 
     if (newPassword !== repeatNewPassword) {
       setPassError("Passwords do not match");
@@ -143,8 +137,8 @@ const SettingsPage: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          oldPassword: oldPassword,
-          newPassword: newPassword,
+          oldPassword,
+          newPassword,
         }),
       });
 
@@ -153,42 +147,21 @@ const SettingsPage: React.FC = () => {
         setPassError(errorData.error || "Failed to change password");
         return;
       }
+
       setSuccess("Password changed successfully");
+      setOldPassword("");
+      setNewPassword("");
+      setRepeatNewPassword("");
     } catch (error) {
       console.error("Error changing password:", error);
       setPassError("An unexpected error occurred");
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch("/api/user/ChangeUsername", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ newUsername: username }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("Username updated successfully");
-        await update({
-          ...session,
-          user: {
-            ...session?.user,
-            name: username,
-          },
-        });
-        setIsChanged(false);
-      } else {
-        console.error("Failed to update username:", data.error);
-      }
-    } catch (error) {
-      console.error("Error updating username:", error);
-    }
-  };
+  // Don't render until we're on the client
+  if (!isClient) {
+    return null;
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -208,33 +181,7 @@ const SettingsPage: React.FC = () => {
 
           {/* Username Section */}
           <div className="space-y-6">
-            <div className="grid md:grid-cols-[1fr,2fr] gap-8 items-start">
-              <div>
-                <h3 className="text-lg font-medium text-white mb-1">
-                  Your Name
-                </h3>
-                <p className="text-slate-400 text-sm">
-                  Please enter a display name you are comfortable with.
-                </p>
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-              </div>
-
-              <div className="flex flex-col md:flex-row gap-4">
-                <Input
-                  className="flex-1 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500"
-                  placeholder="Username"
-                  value={username}
-                  onChange={handleUsernameChange}
-                />
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!isChanged || !username.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  {isChanged ? "Save Changes" : "Change"}
-                </Button>
-              </div>
-            </div>
+            <ChangeUsername />
             {/*edit password section*/}
 
             {provider ? (

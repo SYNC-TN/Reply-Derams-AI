@@ -21,7 +21,8 @@ const BookPage: React.FC<BookPageProps> = ({
 }) => {
   const [hoverState, setHoverState] = useState(0);
   const [flipState, setFlipState] = useState(
-    localStorage.getItem("flipState") === "true"
+    typeof localStorage !== "undefined" &&
+      localStorage.getItem("flipState") === "true"
   );
 
   // Enhanced page styles with depth effect
@@ -29,7 +30,9 @@ const BookPage: React.FC<BookPageProps> = ({
   // Dynamic shadow based on page position
 
   useEffect(() => {
-    localStorage.setItem("flipState", flipState.toString());
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("flipState", flipState.toString());
+    }
   }, [flipState]);
 
   return (
