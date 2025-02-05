@@ -38,7 +38,6 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import Logo from "@/app/dreams/Logo";
 import { usePathname } from "next/navigation";
-export const dynamic = "force-dynamic";
 
 const applicationItems = [
   {
@@ -79,46 +78,56 @@ const optionItems = [
 export function AppSidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
-
   const [currentPath, setCurrentPath] = useState("");
-  const {
-    state,
+  const [isMounted, setIsMounted] = useState(false);
+  const [initialMenuState, setInitialMenuState] = useState<string | null>(null);
+  const { state, setOpen } = useSidebar();
 
-    setOpen,
-  } = useSidebar();
-  const menuState = localStorage.getItem("menuState");
-
+  // Check initial menu state and pathname
   useEffect(() => {
-    setCurrentPath(pathname);
-    console.log(`Current path is ${pathname}`);
-  }, [pathname]);
+    if (typeof window !== "undefined") {
+      const savedMenuState = window.localStorage?.getItem("menuState");
+      setInitialMenuState(savedMenuState);
 
-  useEffect(() => {
-    const savedMenuState = localStorage.getItem("menuState");
-    if (savedMenuState === "collapsed") {
-      setOpen(false);
+      // Set current path from localStorage or pathname
+      const savedPath = window.localStorage?.getItem("currentPath");
+      setCurrentPath(savedPath || pathname);
+
+      // Apply saved menu state
+      if (savedMenuState === "collapsed") {
+        setOpen(false);
+      }
     }
+    setIsMounted(true);
   }, []);
+
+  // Update pathname when it changes
   useEffect(() => {
-    localStorage.setItem("menuState", state);
-  }, [state]);
-  document.addEventListener("DOMContentLoaded", () => {
-    if (menuState === "collapsed") {
-      setOpen(false);
+    if (isMounted) {
+      setCurrentPath(pathname);
     }
-  });
+  }, [pathname, isMounted]);
+
+  // Save menu state when it changes
+  useEffect(() => {
+    if (isMounted && typeof window !== "undefined") {
+      window.localStorage?.setItem("menuState", state);
+    }
+  }, [state, isMounted]);
 
   const handleNavigation = (url: string) => {
     setCurrentPath(url);
-    localStorage.setItem("currentPath", url);
+    if (typeof window !== "undefined") {
+      window.localStorage?.setItem("currentPath", url);
+    }
   };
 
-  document.addEventListener("DOMContentLoaded", () =>
-    setCurrentPath(window.location.pathname)
-  );
+  useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, [window.location.pathname]);
   return (
     <Sidebar
-      className="w-64 bg-[#0a1929] border-r border-blue-900/20 flex flex-col z-50  "
+      className="w-64 bg-[#0a1929] border-r border-blue-900/20 flex flex-col z-50"
       collapsible="icon"
     >
       <SidebarContent className="overflow-x-hidden">
@@ -224,9 +233,10 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
       {/* Avatar Section at bottom */}
       <SidebarFooter className="mt-auto overflow-hidden">
-        <div className={`pt-2  border-t border-blue-900/20 `}>
+        <div className={`pt-2 border-t border-blue-900/20`}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

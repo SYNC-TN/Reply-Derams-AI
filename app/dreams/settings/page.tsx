@@ -35,7 +35,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-export const dynamic = "force-dynamic";
 
 import ChangeUsername from "./ChangeUsername";
 const SettingsPage = () => {

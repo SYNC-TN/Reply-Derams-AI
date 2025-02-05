@@ -87,7 +87,7 @@ export default function DreamBookContainer({
     if (lang) {
       setLanguage(lang);
     }
-    if (localStorage.getItem("isReading")) {
+    if (typeof window !== "undefined" && localStorage.getItem("isReading")) {
       setAutoTurnEnabled(localStorage.getItem("isReading") === "true");
     }
   }, [lang]);
@@ -129,7 +129,9 @@ export default function DreamBookContainer({
     }
 
     setIsReading(false);
-    localStorage.setItem("isReading", autoTurnEnabled.toString());
+    if (typeof window !== "undefined" && localStorage) {
+      localStorage.setItem("isReading", autoTurnEnabled.toString());
+    }
     isReadingRef.current = false;
     autoReadingRef.current = false;
   }, [autoTurnEnabled]);
