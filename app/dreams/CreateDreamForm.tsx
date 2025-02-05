@@ -285,6 +285,9 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
       // Process cover data
       const coverResult = await coverResponse.json();
+      if (!coverResult.response) {
+        throw new Error("No cover data provided");
+      }
       const parsedCoverData: CoverData = JSON.parse(coverResult.response);
       const coverImageUrl = await generateImage(
         parsedCoverData.coverImagePrompt
