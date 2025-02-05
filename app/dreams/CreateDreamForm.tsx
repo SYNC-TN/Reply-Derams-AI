@@ -421,7 +421,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         <AdvancedOptions />
         {share && <DreamTags />}
 
-        <div className="space-y-4 mt-5 w-full max-w-3xl space-y-4">
+        <div className="space-y-4 mt-5 w-full max-w-3xl">
           <div className="flex justify-end space-x-4">
             <ShareBook />
             <Button
@@ -441,7 +441,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
               {isGenerating ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  <span>Creating Dream Book ({progress}%)</span>
+                  <span>Creating Dream Bok ({progress}%)</span>
                 </>
               ) : (
                 <>
