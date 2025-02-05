@@ -65,10 +65,8 @@ interface Tag {
 const RATE_LIMIT_DELAY = 1000;
 const MAX_RETRIES = 3;
 function DreamFormContent({ onClose }: CreateDreamFormProps) {
-  const { toast } = useToast();
-  const stableToast = useCallback(toast, [toast]);
-
   const router = useRouter();
+  const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [storyPages, setStoryPages] = useState<Page[]>([]);
@@ -100,22 +98,41 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
   useEffect(() => {
     if (isGenerating) {
       console.log("Toast :Your Story still generating!");
-      stableToast({
+      toast({
         title: "Your Story still generating!",
       });
     }
     if (progress === 100) {
-      stableToast({
+      toast({
         title: "Your Story has been created!",
       });
     }
-  }, [isGenerating, progress, stableToast, toast]);
+  }, [isGenerating]);
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
+  const resizeImage = async (url: string, width: number, height: number) => {
+    const img = new Image();
+    img.src = url;
 
+    await new Promise((resolve) => {
+      img.onload = resolve;
+    });
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Failed to create canvas context");
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(img, 0, 0, width, height);
+
+    return canvas.toDataURL("image/jpeg");
+  };
   const generateSoundEffect = async (
-    description: string,
-    story: string,
+    description: String,
+    story: any,
     retryCount = 0
   ) => {
     if (!soundEffect) return ""; // Return empty string when sound effects are disabled
@@ -285,9 +302,6 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
       // Process cover data
       const coverResult = await coverResponse.json();
-      if (!coverResult.response) {
-        throw new Error("No cover data provided");
-      }
       const parsedCoverData: CoverData = JSON.parse(coverResult.response);
       const coverImageUrl = await generateImage(
         parsedCoverData.coverImagePrompt
@@ -315,23 +329,21 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
       }
 
       setStoryPages(parsedPages);
-      const storyString: string = parsedPages
-        .map((page) => page.text)
-        .join(" ");
+      const storyString: any = parsedPages.map((page) => page.text).join(" ");
 
       // Generate page content sequentially with proper progress tracking
       const generatedPages: GeneratedPage[] = [];
-      const totalSteps = storyPages.length;
+      const totalSteps = parsedPages.length;
 
-      for (let i = 0; i < storyPages.length; i++) {
+      for (let i = 0; i < parsedPages.length; i++) {
         // Generate image and sound effect concurrently for each page
         const [imageUrl, pageSoundEffect] = await Promise.all([
-          generateImage(storyPages[i].imagePrompt),
-          generateSoundEffect(storyPages[i].text, storyString),
+          generateImage(parsedPages[i].imagePrompt),
+          generateSoundEffect(parsedPages[i].text, storyString),
         ]);
 
         generatedPages.push({
-          text: storyPages[i].text,
+          text: parsedPages[i].text,
           imageUrl,
           soundEffect: pageSoundEffect, // This will be either a URL or empty string
         });
@@ -348,7 +360,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         soundEffect: soundEffect || false,
         tags: tags || [],
         pages: generatedPages,
-        coverData: coverData as CoverData,
+        coverData: finalCoverData,
         bookTone: bookTone || "neutral",
         storyLength: storyLength || "medium",
         perspective: perspective || "first-person",
@@ -401,7 +413,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 createForm">
-      <div className="m-auto ">
+      <div className="m-auto  w-full max-w-3xl space-y-4">
         <SoundEffectBtn />
         <DescriptionDream />
         <LanguageSelect />
@@ -409,7 +421,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
         <AdvancedOptions />
         {share && <DreamTags />}
 
-        <div className="space-y-4 mt-5">
+        <div className="space-y-4 mt-5 w-full max-w-3xl space-y-4">
           <div className="flex justify-end space-x-4">
             <ShareBook />
             <Button
@@ -434,7 +446,7 @@ function DreamFormContent({ onClose }: CreateDreamFormProps) {
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  <span>Generate Dream Book</span>
+                  <span>Generate</span>
                 </>
               )}
             </Button>

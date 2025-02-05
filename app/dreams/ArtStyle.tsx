@@ -81,9 +81,9 @@ const ArtStyle = () => {
   ];
 
   return (
-    <div className="space-y-6 grid  ">
+    <div className="space-y-6 grid  w-full">
       <h2 className="text-2xl font-bold">Art Style</h2>
-      <div className="grid max-md:grid-cols-2 gap-4 grid-cols-4">
+      <div className="grid max-sm:grid-cols-2 gap-4 grid-cols-4 max-sm:w-[330px]">
         {styles.map((style) => (
           <StyleCard
             key={style.id}

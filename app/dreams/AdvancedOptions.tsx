@@ -29,7 +29,7 @@ const AdvancedOptions = () => {
   };
 
   return (
-    <Card className="bg-[#0c1b2d] border-blue-500/20 p-6 space-y-6 my-5">
+    <Card className="bg-[#0c1b2d] border-blue-500/20 p-6 space-y-6 my-5 ">
       <motion.h2 className="text-lg font-semibold text-white" {...fadeIn}>
         Advanced Story Options
       </motion.h2>
