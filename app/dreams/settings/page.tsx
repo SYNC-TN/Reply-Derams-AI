@@ -3,7 +3,6 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   AlertCircle,

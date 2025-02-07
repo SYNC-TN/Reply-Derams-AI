@@ -26,29 +26,26 @@ export default function DreamBookContainer({
   const [direction, setDirection] = useState<"next" | "prev">("next");
   const [isReading, setIsReading] = useState(false);
   const [autoTurnEnabled, setAutoTurnEnabled] = useState(
-    typeof window !== "undefined" &&
-      localStorage.getItem("isReading") === "true"
+    localStorage.getItem("isReading") === "true" ? true : false
   );
   const [playFlipSound] = useSound("/page-flip.mp3", { volume: 0.3 });
+  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isReadingRef = useRef(false);
+  const autoReadingRef = useRef(false);
+  const flipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nextPageRef = useRef<number>(currentPage);
   const [language, setLanguage] = useState("en");
+  const isFlippingRef = useRef(false);
   const [audioSliderValue, setAudioSliderValue] = useState(0.5);
   const [audioNarratorValue, setAudioNarratorValue] = useState(0.5);
   const [defaultAudioValue, setDefaultAudioValue] = useState(audioSliderValue);
   const [defaultAudioNarratorValue, setDefaultAudioNarratorValue] =
     useState(audioNarratorValue);
   const [audioNarratorSwitch, setAudioNarratorSwitch] = useState(false);
-  const [audioEffectSwitch, setAudioEffectSwitch] = useState(false);
+  const [audioEffectSwithch, setAudioEffectSwitch] = useState(false);
 
-  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const isReadingRef = useRef(false);
-  const autoReadingRef = useRef(false);
-  const flipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const nextPageRef = useRef<number>(currentPage);
-  const isFlippingRef = useRef(false);
-  useEffect(() => {
-    console.log("audio value", audioSliderValue);
-  }, [audioSliderValue]);
   useEffect(() => {
     backgroundAudioRef.current = new Audio();
     return () => {
@@ -57,7 +54,7 @@ export default function DreamBookContainer({
         backgroundAudioRef.current = null;
       }
     };
-  }, [lang]);
+  }, []);
   useEffect(() => {
     if (backgroundAudioRef.current && audioRef.current) {
       backgroundAudioRef.current.volume = audioSliderValue;
@@ -70,13 +67,18 @@ export default function DreamBookContainer({
       try {
         if (!backgroundAudioRef.current) return;
 
+        // Stop any currently playing background sound
         backgroundAudioRef.current.pause();
         backgroundAudioRef.current.currentTime = 0;
+
+        // Set the new sound URL
         backgroundAudioRef.current.src = soundUrl;
         backgroundAudioRef.current.volume = audioSliderValue;
-        backgroundAudioRef.current.loop = true;
+        backgroundAudioRef.current.loop = true; // Make the background sound loop
 
+        // Play the sound
         await backgroundAudioRef.current.play();
+        console.log("Playing background sound:", soundUrl);
       } catch (error) {
         console.error("Error playing background sound:", error);
       }
@@ -85,13 +87,22 @@ export default function DreamBookContainer({
   );
   useEffect(() => {
     if (lang) {
+      console.log("Language is set to: ", lang);
       setLanguage(lang);
     }
-    if (typeof window !== "undefined" && localStorage.getItem("isReading")) {
-      setAutoTurnEnabled(localStorage.getItem("isReading") === "true");
+    if (localStorage.getItem("isReading")) {
+      console.log("autoRead is set to: ", localStorage.getItem("isReading"));
+      setAutoTurnEnabled(
+        localStorage.getItem("isReading") === "true" ? true : false
+      );
     }
   }, [lang]);
-
+  const stopBackgroundSound = useCallback(() => {
+    if (backgroundAudioRef.current) {
+      backgroundAudioRef.current.pause();
+      backgroundAudioRef.current.currentTime = 0;
+    }
+  }, []);
   const pageVariants = {
     enter: (direction: "next" | "prev") => ({
       transform: `perspective(1500px) translateY(${
@@ -123,38 +134,33 @@ export default function DreamBookContainer({
       audioRef.current.currentTime = 0;
       URL.revokeObjectURL(audioRef.current.src);
     }
-    if (backgroundAudioRef.current) {
-      backgroundAudioRef.current.pause();
-      backgroundAudioRef.current.currentTime = 0;
-    }
+    stopBackgroundSound();
 
     setIsReading(false);
-    if (typeof window !== "undefined" && localStorage) {
-      localStorage.setItem("isReading", autoTurnEnabled.toString());
-    }
+    console.log("autoTurnEnabled status is set to: ", autoTurnEnabled);
+    localStorage.setItem("isReading", autoTurnEnabled.toString());
     isReadingRef.current = false;
     autoReadingRef.current = false;
-  }, [autoTurnEnabled]);
-
+  }, [autoTurnEnabled, stopBackgroundSound]);
   const startReading = useCallback(
     async (autoReading = false, pageToRead = currentPage, speed = 1.1) => {
       try {
         setIsReading(true);
         isReadingRef.current = true;
         autoReadingRef.current = autoReading;
-
         const soundEffect = book.pages[pageToRead].soundEffect;
         if (soundEffect) {
-          await playBackgroundSound(soundEffect);
+          playBackgroundSound(soundEffect);
         }
-
         const response = await fetch("/api/dreams/gtts", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             text: book.pages[pageToRead].text,
             lang: language,
-            speed,
+            speed: speed,
           }),
         });
 
@@ -172,23 +178,18 @@ export default function DreamBookContainer({
           audioRef.current.src = audioUrl;
           audioRef.current.volume = audioNarratorValue;
           audioRef.current.playbackRate = speed;
-          await audioRef.current.play();
+          await audioRef.current.play().catch((error) => {
+            console.error("Error playing audio:", error);
+            stopReading();
+          });
         }
       } catch (error) {
         console.error("Error getting audio:", error);
         stopReading();
       }
     },
-    [
-      book.pages,
-      currentPage,
-      language,
-      audioNarratorValue,
-      playBackgroundSound,
-      stopReading,
-    ]
+    [book, language, stopReading, currentPage]
   );
-
   const flipPage = useCallback(
     (newDirection: "next" | "prev") => {
       if (isFlippingRef.current) return;
@@ -222,29 +223,34 @@ export default function DreamBookContainer({
   useEffect(() => {
     audioRef.current = new Audio();
     nextPageRef.current = currentPage;
-
+    const currentFlipTimeout = flipTimeoutRef.current;
     const handleAudioEnd = async () => {
       if (autoTurnEnabled && nextPageRef.current < book.pages.length - 1) {
         const nextPage = nextPageRef.current + 1;
         const wasAutoReading = autoReadingRef.current;
+        const currentFlipTimeout = flipTimeoutRef.current; // Local variable
 
+        // Stop current reading
         stopReading();
 
-        const timeoutId = flipTimeoutRef.current;
-        if (timeoutId) {
-          clearTimeout(timeoutId);
+        // Clear any existing timeout
+        if (currentFlipTimeout) {
+          clearTimeout(currentFlipTimeout);
         }
 
+        // Flip the page first
         flipPage("next");
+
+        // Update nextPageRef after flipping
         nextPageRef.current = nextPage;
 
+        // Start reading the next page after the flip animation
         if (wasAutoReading) {
-          const newTimeoutId = setTimeout(() => {
+          setTimeout(() => {
             if (!isReadingRef.current) {
               startReading(true, nextPage);
             }
           }, 800);
-          flipTimeoutRef.current = newTimeoutId;
         }
       } else {
         stopReading();
@@ -254,9 +260,8 @@ export default function DreamBookContainer({
     audioRef.current.addEventListener("ended", handleAudioEnd);
 
     return () => {
-      const currentTimeout = flipTimeoutRef.current;
-      if (currentTimeout) {
-        clearTimeout(currentTimeout);
+      if (currentFlipTimeout) {
+        clearTimeout(currentFlipTimeout);
       }
       if (audioRef.current) {
         audioRef.current.removeEventListener("ended", handleAudioEnd);
@@ -271,7 +276,6 @@ export default function DreamBookContainer({
     startReading,
     stopReading,
   ]);
-
   // Update nextPageRef when currentPage changes
   useEffect(() => {
     nextPageRef.current = currentPage;
@@ -285,19 +289,25 @@ export default function DreamBookContainer({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [flipPage]);
-  const switchNarrator = useCallback(() => {
+  }, [currentPage, flipPage]);
+  const switchNarrator = () => {
     setDefaultAudioNarratorValue(audioNarratorValue);
-    setAudioNarratorSwitch((prev) => !prev);
-    setAudioNarratorValue((prev) =>
-      prev === 0 ? defaultAudioNarratorValue : 0
-    );
-  }, [audioNarratorValue, defaultAudioNarratorValue]);
-  const switchEffect = useCallback(() => {
+    setAudioNarratorSwitch(!audioNarratorSwitch);
+    if (audioNarratorSwitch) {
+      setAudioNarratorValue(defaultAudioNarratorValue);
+    } else {
+      setAudioNarratorValue(0.0);
+    }
+  };
+  const switchEffect = () => {
     setDefaultAudioValue(audioSliderValue);
-    setAudioEffectSwitch((prev) => !prev);
-    setAudioSliderValue((prev) => (prev === 0 ? defaultAudioValue : 0));
-  }, [audioSliderValue, defaultAudioValue]);
+    setAudioEffectSwitch(!audioEffectSwithch);
+    if (audioEffectSwithch) {
+      setAudioSliderValue(defaultAudioValue);
+    } else {
+      setAudioSliderValue(0.0);
+    }
+  };
   const HeadphonesSVG = () => {
     return (
       <button onClick={() => switchNarrator()}>
@@ -359,21 +369,21 @@ export default function DreamBookContainer({
           {/* Second Column (Light) */}
           <g>
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : "#ffffff"}
+              fill={!audioEffectSwithch ? "#16ADE1" : "#ffffff"}
               x="155.1"
               y="388"
               width="87.8"
               height="32.7"
             />
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="155.1"
               y="328.7"
               width="87.8"
               height="32.7"
             />
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="155.1"
               y="269.3"
               width="87.8"
@@ -402,42 +412,42 @@ export default function DreamBookContainer({
           {/* Fourth Column (Light) */}
           <g>
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="383.2"
               y="388"
               width="87.8"
               height="32.7"
             />
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="383.2"
               y="328.7"
               width="87.8"
               height="32.7"
             />
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="383.2"
               y="269.3"
               width="87.8"
               height="32.7"
             />
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="383.2"
               y="210"
               width="87.8"
               height="32.7"
             />
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="383.2"
               y="150.7"
               width="87.8"
               height="32.7"
             />
             <rect
-              fill={!audioEffectSwitch ? "#16ADE1" : `#ffffff`}
+              fill={!audioEffectSwithch ? "#16ADE1" : `#ffffff`}
               x="383.2"
               y="91.3"
               width="87.8"

@@ -1,6 +1,7 @@
 // BookShelfContainer.tsx
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import { Dream, FilterState } from "./types"; // Adjust the import path as necessary
 import BookShelf from "./BookShelf";
 import { useSession } from "next-auth/react";
 import Link from "next/link";

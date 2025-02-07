@@ -28,7 +28,6 @@ const SoundEffectBtn = () => {
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
   const { soundEffect, setSoundEffect } = useBookData();
 
-  const colors = ["#e0f2fe", "#7dd3fc", "#0ea5e9"];
   const gap = 4;
   const speed = 0.025;
 
@@ -53,7 +52,7 @@ const SoundEffectBtn = () => {
     y,
     color,
     size: 0,
-    counter: 0,
+    counter: delay,
     isReverse: false,
     isShimmer: false,
     isIdle: false,
@@ -128,6 +127,7 @@ const SoundEffectBtn = () => {
     const context = canvas.getContext("2d");
     if (!context) return;
 
+    const colors = ["#e0f2fe", "#7dd3fc", "#0ea5e9"];
     context.clearRect(0, 0, canvas.width, canvas.height);
     const pixels: PixelData[] = [];
 
@@ -145,7 +145,7 @@ const SoundEffectBtn = () => {
     }
 
     pixelsRef.current = pixels;
-  }, [colors, gap]);
+  }, [gap]);
 
   const animate = React.useCallback(
     (action: "appear" | "disappear") => {

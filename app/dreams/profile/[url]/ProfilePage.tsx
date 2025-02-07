@@ -21,10 +21,27 @@ interface ProfilePageProps {
     FollowingCount?: number;
     isOwner?: boolean;
   };
-  collection?: any[];
+  collection?: book[];
   isLoading?: boolean;
 }
-
+interface book {
+  title: string;
+  url: string;
+  username: string;
+  share: boolean;
+  cover: string;
+  subtitle: string;
+  coverData: {
+    title: string;
+    subtitle: string;
+    coverImageUrl?: string;
+  };
+  stats: {
+    likes: number;
+    views: number;
+    comments: number;
+  };
+}
 const ProfilePage: React.FC<ProfilePageProps> = ({
   name = "",
   userData,
@@ -116,7 +133,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   };
 
   const UpdateProfile = async (
-    image: any,
+    image: string | ArrayBuffer | null,
     path: string,
     width: number,
     height: number

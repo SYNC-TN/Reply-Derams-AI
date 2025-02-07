@@ -10,7 +10,7 @@ interface CoverData {
   coverImageUrl?: string;
 }
 
-interface Dream {
+export interface Dream {
   User: string;
   url: string;
   name: string;
@@ -26,7 +26,7 @@ interface Dream {
   __v: number;
 }
 
-interface FilterState {
+export interface FilterState {
   hasLikes: boolean;
   hasViews: boolean;
 }

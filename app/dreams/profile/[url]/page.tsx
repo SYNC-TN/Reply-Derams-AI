@@ -6,7 +6,24 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-
+interface book {
+  title: string;
+  url: string;
+  username: string;
+  share: boolean;
+  cover: string;
+  subtitle: string;
+  coverData: {
+    title: string;
+    subtitle: string;
+    coverImageUrl?: string;
+  };
+  stats: {
+    likes: number;
+    views: number;
+    comments: number;
+  };
+}
 interface UserData {
   name: string;
   profilePic: string;
@@ -16,7 +33,8 @@ interface UserData {
   FollowersCount: number;
   FollowingCount: number;
   isOwner: boolean;
-  collection: any;
+  collection: book[];
+
   DreamsCount: number;
 }
 

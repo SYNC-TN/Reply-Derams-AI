@@ -80,7 +80,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const [currentPath, setCurrentPath] = useState("");
   const [isMounted, setIsMounted] = useState(false);
-  const [initialMenuState, setInitialMenuState] = useState<string | null>(null);
+  const [, setInitialMenuState] = useState<string | null>(null);
   const { state, setOpen } = useSidebar();
 
   // Check initial menu state and pathname
@@ -99,7 +99,7 @@ export function AppSidebar() {
       }
     }
     setIsMounted(true);
-  }, []);
+  }, [pathname]);
 
   // Update pathname when it changes
   useEffect(() => {
@@ -124,7 +124,7 @@ export function AppSidebar() {
 
   useEffect(() => {
     setCurrentPath(window.location.pathname);
-  }, [window.location.pathname]);
+  }, []);
   return (
     <Sidebar
       className="w-64 bg-[#0a1929] border-r border-blue-900/20 flex flex-col z-50"

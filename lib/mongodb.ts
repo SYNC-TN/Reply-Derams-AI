@@ -7,7 +7,7 @@ interface CachedConnection {
 }
 
 declare global {
-  var mongoose: CachedConnection | undefined;
+  let mongoose: CachedConnection | undefined; // Use 'let' instead of 'var'
 }
 
 if (!process.env.MONGODB_URI) {
