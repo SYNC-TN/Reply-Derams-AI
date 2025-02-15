@@ -13,23 +13,20 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { image, path, width, height } = body;
-    console.log("claudinary request");
+
     if (!image) {
-      return NextResponse.json(
-        { error: "No image data provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "no data provided" }, { status: 400 });
     }
 
-    // Upload to Cloudinary
+    //télécharger de l'image sur Cloudinary
     const result = await cloudinary.uploader.upload(image, {
-      folder: path, // Organize images in a folder
+      folder: path, // organizer les images dans un dossier
       resource_type: "image",
       transformation: [
-        { quality: "auto" }, // Automatic quality optimization
+        { quality: "auto" },
         { width: width },
         { height: height },
-        { fetch_format: "webp" }, // Automatic format optimization
+        { fetch_format: "webp" }, //utilizer format webp pour optimize l'image
       ],
     });
 
